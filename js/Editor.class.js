@@ -1,8 +1,6 @@
-class Editor {
-    static #COMPONENT_NAME = {
-        HEADING: "Heading"
-    }
+import ComponentClasses from "./comp/class-list.js";
 
+export default class Editor {
     #wrapper;
     #components = {};
 
@@ -17,18 +15,18 @@ class Editor {
     }
 
     addComponent(componentName) {
+        const cls = ComponentClasses[componentName];
+
         let component;
-        switch (componentName) {
-            case Editor.#COMPONENT_NAME.HEADING:
-                component = new Heading();
-                break;
-            default:
-                throw new Error("Invalid component");
+        if (cls) {
+            component = new cls();
+
+            component.init(this);
+            if (component.isAvailable()) {
+                this.#components[component.id] = component;
+            }
         }
-
-        component.init(this);
-        this.#components[component.id] = component;
-
+        
         return component;
     }
 

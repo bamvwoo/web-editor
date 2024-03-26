@@ -1,4 +1,6 @@
-class Component {
+import { createUniqueId } from "../utils.js";
+
+export default class Component {
     #margin;
     #padding;
 
@@ -10,7 +12,6 @@ class Component {
         this._id = id || createUniqueId();
         this._name = props.name;
         this._className = props.className;
-        this._template = props.template;
     }
 
     get id() {
@@ -30,11 +31,7 @@ class Component {
     }
 
     get template() {
-        return this._template;
-    }
-
-    set template(template) {
-        this._template = template;
+        throw new Error("You have to implement the template getter method");
     }
 
     #setRange() {
@@ -110,14 +107,24 @@ class Component {
         // 에디터에 컴포넌트의 요소 추가
         editor.getWrapper().appendChild(element);
 
+        this.render();
+
         this.#setRange.bind(this)();
 
         this.getElement().addEventListener("mouseover", this.#showComponentRange.bind(this));
         this.#initHandler.bind(this)();
     }
 
+    render() {
+        this.getElement().innerHTML = this.template;
+    }
+
     #initHandler() {
-        this.getElement().addEventListener("click", this.#selectComponent.bind(this));
+        this.getElement().addEventListener("click", this.select.bind(this));
+    }
+
+    #isSelected() {
+        return this.getElement().classList.contains("selected");
     }
 
     getElement() {
@@ -128,11 +135,7 @@ class Component {
         return this._id !== null && this.getElement() !== null;
     }
 
-    #isSelected() {
-        return this.getElement().classList.contains("selected");
-    }
-
-    #selectComponent() {
+    select() {
         if (this.#isSelected()) {
             this.getElement().classList.remove("selected");
         } else {
