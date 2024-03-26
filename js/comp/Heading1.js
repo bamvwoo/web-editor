@@ -2,14 +2,15 @@ import Component from "./Component.js";
 
 export default class Heading1 extends Component {
     static NAME = "Heading1";
+    static PROPS = {
+        name: Heading1.NAME,
+        displayName: "Heading 1",
+        className: "comp-heading",
+        thumbnail: "/assets/images/thumbnail/heading1.png"
+    };
 
     constructor(id) {
-        const props = {
-            name: Heading1.NAME,
-            className: "comp-heading"
-        }
-
-        super(id, props);
+        super(id, Heading1.PROPS);
 
         this._content = "";
     }

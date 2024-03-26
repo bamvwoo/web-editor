@@ -16,19 +16,37 @@
 	cursor: pointer;
 }
 
-.comp.selected {
-	background-color: rgba(0, 0, 0, 0.1);
+.comp.selected,
+.margin-box:has(.comp.selected) {
+	box-shadow: 0 0 0 2px blue inset;
 }
 
-/* Heading Component Style */
-
-.comp-heading {
-	padding: 20px;
-	margin: 10px;
+.comp.selected:hover,
+.padding-box:has(.comp.selected):hover .comp.selected,
+.margin-box:has(.comp.selected):hover .comp.selected {
+	box-shadow: unset;
 }
+
+/* Heading Component Common Style */
+
+.comp-heading {}
+
+/* Heading1 Component Style */
 
 .comp-heading h1 {
 	font-size: 2rem;
 	font-weight: 700;
-	color: #333;
+	color: #444;
+}
+
+/* Column Component Common Style */
+
+.comp-column {
+	display: flex;
+	height: 500px;
+	padding: 10px;
+}
+
+.comp-column > div {
+	flex: 1;
 }

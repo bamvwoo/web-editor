@@ -1,6 +1,8 @@
 import { createUniqueId } from "../utils.js";
 
 export default class Component {
+    #width;
+    #height;
     #margin;
     #padding;
 
@@ -11,7 +13,9 @@ export default class Component {
 
         this._id = id || createUniqueId();
         this._name = props.name;
+        this._displayName = props.displayName;
         this._className = props.className;
+        this._thumbnail = props.thumbnail;
     }
 
     get id() {
@@ -35,25 +39,32 @@ export default class Component {
     }
 
     #setRange() {
+        const element = this.getElement();
+
         this.#margin = {
-            top: getComputedStyle(this.getElement()).marginTop,
-            right: getComputedStyle(this.getElement()).marginRight,
-            bottom: getComputedStyle(this.getElement()).marginBottom,
-            left: getComputedStyle(this.getElement()).marginLeft,
+            top: getComputedStyle(element).marginTop,
+            right: getComputedStyle(element).marginRight,
+            bottom: getComputedStyle(element).marginBottom,
+            left: getComputedStyle(element).marginLeft
         };
     
         this.#padding = {
-            top: getComputedStyle(this.getElement()).paddingTop,
-            right: getComputedStyle(this.getElement()).paddingRight,
-            bottom: getComputedStyle(this.getElement()).paddingBottom,
-            left: getComputedStyle(this.getElement()).paddingLeft
+            top: getComputedStyle(element).paddingTop,
+            right: getComputedStyle(element).paddingRight,
+            bottom: getComputedStyle(element).paddingBottom,
+            left: getComputedStyle(element).paddingLeft
         };
+
+        this.#width = getComputedStyle(element).width;
+        this.#height = getComputedStyle(element).height;
     }
 
     #showComponentRange(e) {
-        this.getElement().style.padding = 0;
-        this.getElement().style.margin = 0;
-    
+        const element = this.getElement();
+
+        element.style.padding = 0;
+        element.style.margin = 0;
+
         const marginBox = document.createElement("div");
         marginBox.classList.add("margin-box");
     
@@ -61,7 +72,10 @@ export default class Component {
         marginBox.style.paddingRight = this.#margin.right;
         marginBox.style.paddingBottom = this.#margin.bottom;
         marginBox.style.paddingLeft = this.#margin.left;
-        
+
+        marginBox.style.width = (parseFloat(this.#width) + parseFloat(this.#margin.left) + parseFloat(this.#margin.right)) + "px";
+        marginBox.style.height = (parseFloat(this.#height) + parseFloat(this.#margin.top) + parseFloat(this.#margin.bottom)) + "px";
+
         const paddingBox = document.createElement("div");
         paddingBox.classList.add("padding-box");
     
@@ -69,12 +83,12 @@ export default class Component {
         paddingBox.style.paddingRight = this.#padding.right;
         paddingBox.style.paddingBottom = this.#padding.bottom;
         paddingBox.style.paddingLeft = this.#padding.left;
-    
-        const cloneNode = this.getElement().cloneNode(true);
+        
+        const cloneNode = element.cloneNode(true);
         paddingBox.appendChild(cloneNode);
         marginBox.appendChild(paddingBox);
-    
-        this.getElement().parentNode.replaceChild(marginBox, this.getElement());
+
+        element.parentNode.replaceChild(marginBox, element);
 
         marginBox.addEventListener("mouseout", this.#hideComponentRange.bind(this));
         this.#initHandler.bind(this)();
