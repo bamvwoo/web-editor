@@ -1,6 +1,8 @@
 import { createUniqueId } from "../utils.js";
 
 export default class Component {
+    #templateElement;
+
     constructor(id, props) {
         if (this.constructor === Component) {
             throw new Error("Cannot create an instance of abstract class");
@@ -35,7 +37,7 @@ export default class Component {
         throw new Error("You have to implement the template getter method");
     }
 
-    #getRange() {
+    getRange() {
         const element = this.getElement();
         const elementStyle = getComputedStyle(element);
 
@@ -56,121 +58,32 @@ export default class Component {
         }
     }
 
-    #showRange(e) {
-        const element = this.getElement();
-        const elementStyle = getComputedStyle(element);
-        
-        const range = this.#getRange();
-
-        // Margin Box 생성
-        for (let position in range.margin) {
-            const boxElement = document.createElement("span");
-            boxElement.classList.add("range-box", "margin-box", "margin-" + position + "-box");
-            
-            const value = range.margin[position];
-            if (position === "top" || position === "bottom") {
-                boxElement.style.width = parseFloat(elementStyle.width) + (
-                    parseFloat(range.margin.left) + parseFloat(range.margin.right)
-                ) + "px";
-                boxElement.style.height = value;
-
-                if (position === "top") {
-                    boxElement.style.top = "-" + value;
-                } else {
-                    boxElement.style.bottom = "-" + value;
-                }
-
-                boxElement.style.left = "-" + range.margin.left;
-            } else if (position === "left" || position === "right") {
-                boxElement.style.width = value;
-                boxElement.style.height = elementStyle.height;
-
-                if (position === "left") {
-                    boxElement.style.left = "-" + value;
-                } else {
-                    boxElement.style.right = "-" + value;
-                }
-
-                boxElement.style.top = 0;
-            }
-
-            element.appendChild(boxElement);
-        }
-
-        // Padding Box 생성
-        for (let position in range.padding) {
-            const boxElement = document.createElement("span");
-            boxElement.classList.add("range-box", "padding-box", "padding-" + position + "-box");
-            
-            const value = range.padding[position];
-            if (position === "top" || position === "bottom") {
-                boxElement.style.width = elementStyle.width;
-                boxElement.style.height = value;
-            } else if (position === "right" || position === "left") {
-                boxElement.style.top = range.padding.top;
-                boxElement.style.width = value;
-                boxElement.style.height = parseFloat(elementStyle.height) - (
-                    parseFloat(range.padding.top) + parseFloat(range.padding.bottom)
-                ) + "px";
-            }
-
-            element.appendChild(boxElement);
-        }
-    }
-
-    #hideComponentRange(e) {
-        const element = this.getElement();
-        element.querySelectorAll(".comp > .range-box").forEach((box) => {
-            box.remove();
-        });
-    }
-
-    /**
-     * 
-     * @param {*} editor 
-     * @param {*} nextTo 
-     */
-    init(editor, nextTo) {
+    init() {
         // 태그 생성
-        const element = document.createElement("div");
-        element.id = this._id;
+        this.#templateElement = document.createElement("div");
+        this.#templateElement.id = this._id;
 
-        element.classList.add("comp");
-        element.classList.add(this._className);
+        this.#templateElement.classList.add("comp");
+        this.#templateElement.classList.add(this._className);
 
         // 탬플릿 삽입
-        element.innerHTML = this.template;
+        this.#templateElement.innerHTML = this.template;
 
-        // 에디터에 컴포넌트의 요소 추가
-        if (nextTo) {
-            nextTo.insertAdjacentElement("afterend", element);
-        } else {
-            editor.getWrapper().appendChild(element);
-        }
-
-        this.render();
-
-        this.#initHandler.bind(this)();
+        return this.#templateElement;
     }
 
     render() {
-        this.getElement().innerHTML = this.template;
-    }
+        if (!this.isAvailable()) {
+            throw new Error("Component is not available");
+        }
 
-    #initHandler() {
         const element = this.getElement();
-
-        element.addEventListener("mouseover", (e) => {
-            this.#showRange.bind(this, e);
-        });
-        element.addEventListener("mouseout", (e) => {
-            this.#hideComponentRange.bind(this, e);
-        });
-        element.addEventListener("click", this.select.bind(this));
+        element.innerHTML = this.template;
     }
 
-    #isSelected() {
-        return this.getElement().classList.contains("selected");
+    isSelected() {
+        const element = this.getElement();
+        return element.classList.contains("selected");
     }
 
     getElement() {
@@ -179,22 +92,6 @@ export default class Component {
 
     isAvailable() {
         return this._id !== null && this.getElement() !== null;
-    }
-
-    select() {
-        const element = this.getElement();
-
-        if (this.#isSelected()) {
-            element.classList.remove("selected");
-        } else {
-            document.querySelectorAll(".comp.selected").forEach((comp) => {
-                comp.classList.remove("selected");
-            });
-
-            const elementStyle = getComputedStyle(element);
-    
-            element.classList.add("selected");
-        }
     }
 
     setStyle(element, any, value) {

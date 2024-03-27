@@ -3,6 +3,7 @@
 .range-box {
 	position: absolute;
 	z-index: 1;
+	pointer-events: none;
 }
 
 .margin-box {
@@ -33,7 +34,7 @@
 	}
 }
 
-.comp:has(.range-box) {
+.comp:has(> .range-box) {
 	background-color: rgba(76, 146, 177, .1);
 }
 
@@ -46,23 +47,24 @@
 	height: calc(100% - 4px);
 	background-color: transparent;
 	border: 2px dashed #ac92b1;
-	z-index: 2;
 }
 
 .comp {
+	cursor: pointer;
 	position: relative;
 }
 
-.comp:hover {
-	cursor: pointer;
-}
+/* Heading Component Style */
 
 .comp-heading {
+
 	/* Heading Component Common Style */
+
 	display: flex;
 	align-items: center;
 
 	/* Heading1 Component Style */
+
 	&:has(h1) {
 		height: 50px;
 	}
@@ -74,9 +76,12 @@
 	}
 }
 
-/* Column Component Common Style */
+/* Column Component Style */
 
 .comp-column {
+
+	/* Column Component Common Style */
+
 	display: flex;
 	height: 500px;
 	padding: 20px;
@@ -84,5 +89,9 @@
 
 	& > div {
 		flex: 1;
+	}
+
+	& .comp-column {
+		height: 100%;
 	}
 }
