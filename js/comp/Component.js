@@ -56,10 +56,10 @@ export default class Component {
         }
     }
 
-    #showRange() {
+    #showRange(e) {
         const element = this.getElement();
         const elementStyle = getComputedStyle(element);
-
+        
         const range = this.#getRange();
 
         // Margin Box 생성
@@ -125,7 +125,12 @@ export default class Component {
         });
     }
 
-    init(editor) {
+    /**
+     * 
+     * @param {*} editor 
+     * @param {*} nextTo 
+     */
+    init(editor, nextTo) {
         // 태그 생성
         const element = document.createElement("div");
         element.id = this._id;
@@ -137,7 +142,11 @@ export default class Component {
         element.innerHTML = this.template;
 
         // 에디터에 컴포넌트의 요소 추가
-        editor.getWrapper().appendChild(element);
+        if (nextTo) {
+            nextTo.insertAdjacentElement("afterend", element);
+        } else {
+            editor.getWrapper().appendChild(element);
+        }
 
         this.render();
 
@@ -151,8 +160,12 @@ export default class Component {
     #initHandler() {
         const element = this.getElement();
 
-        element.addEventListener("mouseover", this.#showRange.bind(this));
-        element.addEventListener("mouseout", this.#hideComponentRange.bind(this));
+        element.addEventListener("mouseover", (e) => {
+            this.#showRange.bind(this, e);
+        });
+        element.addEventListener("mouseout", (e) => {
+            this.#hideComponentRange.bind(this, e);
+        });
         element.addEventListener("click", this.select.bind(this));
     }
 

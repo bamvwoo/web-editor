@@ -91,19 +91,7 @@ a {
 	height: calc(100vh - 50px);
 }
 
-/* Editor Style */
 #wrapper > main > * {
 	overflow-x: hidden;
 	overflow-y: auto;
-}
-
-#editor {
-	display: block;
-	flex: 1;
-	padding: 20px;
-}
-
-#editor + aside {
-	width: 300px;
-	height: 100%;
 }
