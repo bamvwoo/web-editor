@@ -1,11 +1,6 @@
 import { createUniqueId } from "../utils.js";
 
 export default class Component {
-    #width;
-    #height;
-    #margin;
-    #padding;
-
     constructor(id, props) {
         if (this.constructor === Component) {
             throw new Error("Cannot create an instance of abstract class");
@@ -34,88 +29,111 @@ export default class Component {
         this._name = name;
     }
 
+    /* Abstract Methods */
+
     get template() {
         throw new Error("You have to implement the template getter method");
     }
 
-    #setRange() {
+    #getRange() {
         const element = this.getElement();
+        const elementStyle = getComputedStyle(element);
 
-        this.#margin = {
-            top: getComputedStyle(element).marginTop,
-            right: getComputedStyle(element).marginRight,
-            bottom: getComputedStyle(element).marginBottom,
-            left: getComputedStyle(element).marginLeft
-        };
-    
-        this.#padding = {
-            top: getComputedStyle(element).paddingTop,
-            right: getComputedStyle(element).paddingRight,
-            bottom: getComputedStyle(element).paddingBottom,
-            left: getComputedStyle(element).paddingLeft
-        };
+        return {
+            margin: {
+                top: elementStyle.marginTop,
+                right: elementStyle.marginRight,
+                bottom: elementStyle.marginBottom,
+                left: elementStyle.marginLeft
+            },
 
-        this.#width = getComputedStyle(element).width;
-        this.#height = getComputedStyle(element).height;
+            padding: {
+                top: elementStyle.paddingTop,
+                right: elementStyle.paddingRight,
+                bottom: elementStyle.paddingBottom,
+                left: elementStyle.paddingLeft
+            }
+        }
     }
 
-    #showComponentRange(e) {
+    #showRange() {
         const element = this.getElement();
+        const elementStyle = getComputedStyle(element);
 
-        element.style.padding = 0;
-        element.style.margin = 0;
+        const range = this.#getRange();
 
-        const marginBox = document.createElement("div");
-        marginBox.classList.add("margin-box");
-    
-        marginBox.style.paddingTop = this.#margin.top;
-        marginBox.style.paddingRight = this.#margin.right;
-        marginBox.style.paddingBottom = this.#margin.bottom;
-        marginBox.style.paddingLeft = this.#margin.left;
+        // Margin Box 생성
+        for (let position in range.margin) {
+            const boxElement = document.createElement("span");
+            boxElement.classList.add("range-box", "margin-box", "margin-" + position + "-box");
+            
+            const value = range.margin[position];
+            if (position === "top" || position === "bottom") {
+                boxElement.style.width = parseFloat(elementStyle.width) + (
+                    parseFloat(range.margin.left) + parseFloat(range.margin.right)
+                ) + "px";
+                boxElement.style.height = value;
 
-        marginBox.style.width = (parseFloat(this.#width) + parseFloat(this.#margin.left) + parseFloat(this.#margin.right)) + "px";
-        marginBox.style.height = (parseFloat(this.#height) + parseFloat(this.#margin.top) + parseFloat(this.#margin.bottom)) + "px";
+                if (position === "top") {
+                    boxElement.style.top = "-" + value;
+                } else {
+                    boxElement.style.bottom = "-" + value;
+                }
 
-        const paddingBox = document.createElement("div");
-        paddingBox.classList.add("padding-box");
-    
-        paddingBox.style.paddingTop = this.#padding.top;
-        paddingBox.style.paddingRight = this.#padding.right;
-        paddingBox.style.paddingBottom = this.#padding.bottom;
-        paddingBox.style.paddingLeft = this.#padding.left;
-        
-        const cloneNode = element.cloneNode(true);
-        paddingBox.appendChild(cloneNode);
-        marginBox.appendChild(paddingBox);
+                boxElement.style.left = "-" + range.margin.left;
+            } else if (position === "left" || position === "right") {
+                boxElement.style.width = value;
+                boxElement.style.height = elementStyle.height;
 
-        element.parentNode.replaceChild(marginBox, element);
+                if (position === "left") {
+                    boxElement.style.left = "-" + value;
+                } else {
+                    boxElement.style.right = "-" + value;
+                }
 
-        marginBox.addEventListener("mouseout", this.#hideComponentRange.bind(this));
-        this.#initHandler.bind(this)();
+                boxElement.style.top = 0;
+            }
+
+            element.appendChild(boxElement);
+        }
+
+        // Padding Box 생성
+        for (let position in range.padding) {
+            const boxElement = document.createElement("span");
+            boxElement.classList.add("range-box", "padding-box", "padding-" + position + "-box");
+            
+            const value = range.padding[position];
+            if (position === "top" || position === "bottom") {
+                boxElement.style.width = elementStyle.width;
+                boxElement.style.height = value;
+            } else if (position === "right" || position === "left") {
+                boxElement.style.top = range.padding.top;
+                boxElement.style.width = value;
+                boxElement.style.height = parseFloat(elementStyle.height) - (
+                    parseFloat(range.padding.top) + parseFloat(range.padding.bottom)
+                ) + "px";
+            }
+
+            element.appendChild(boxElement);
+        }
     }
 
     #hideComponentRange(e) {
-        this.getElement().style.margin = Object.values(this.#margin).join(" ");
-        this.getElement().style.padding = Object.values(this.#padding).join(" ");
-
-        const paddingBox = this.getElement().parentNode;
-        const marginBox = paddingBox.parentNode;
-
-        marginBox.parentNode.replaceChild(this.getElement(), marginBox);
-
-        paddingBox.remove();
-        marginBox.remove();
-
-        this.getElement().addEventListener("mouseover", this.#showComponentRange.bind(this));
-        this.#initHandler.bind(this)();
+        const element = this.getElement();
+        element.querySelectorAll(".comp > .range-box").forEach((box) => {
+            box.remove();
+        });
     }
 
     init(editor) {
-        // 태그 생성 후 탬플릿 삽입
+        // 태그 생성
         const element = document.createElement("div");
         element.id = this._id;
+
         element.classList.add("comp");
         element.classList.add(this._className);
+
+        // 탬플릿 삽입
         element.innerHTML = this.template;
 
         // 에디터에 컴포넌트의 요소 추가
@@ -123,9 +141,6 @@ export default class Component {
 
         this.render();
 
-        this.#setRange.bind(this)();
-
-        this.getElement().addEventListener("mouseover", this.#showComponentRange.bind(this));
         this.#initHandler.bind(this)();
     }
 
@@ -134,7 +149,11 @@ export default class Component {
     }
 
     #initHandler() {
-        this.getElement().addEventListener("click", this.select.bind(this));
+        const element = this.getElement();
+
+        element.addEventListener("mouseover", this.#showRange.bind(this));
+        element.addEventListener("mouseout", this.#hideComponentRange.bind(this));
+        element.addEventListener("click", this.select.bind(this));
     }
 
     #isSelected() {
@@ -150,14 +169,30 @@ export default class Component {
     }
 
     select() {
+        const element = this.getElement();
+
         if (this.#isSelected()) {
-            this.getElement().classList.remove("selected");
+            element.classList.remove("selected");
         } else {
             document.querySelectorAll(".comp.selected").forEach((comp) => {
                 comp.classList.remove("selected");
             });
+
+            const elementStyle = getComputedStyle(element);
     
-            this.getElement().classList.add("selected");
+            element.classList.add("selected");
+        }
+    }
+
+    setStyle(element, any, value) {
+        if (element) {
+            if (any instanceof Object) {
+                for (let key in any) {
+                    element.style[key] = any[key];
+                }
+            } else if (typeof any === "string") {
+                element.style[any] = value;
+            }
         }
     }
 }

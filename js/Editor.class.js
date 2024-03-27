@@ -14,12 +14,12 @@ export default class Editor {
         this.#wrapper = document.getElementById(this._id);
     }
 
-    addComponent(componentName) {
+    addComponent(componentName, options) {
         const cls = ComponentClasses[componentName];
 
         let component;
         if (cls) {
-            component = new cls();
+            component = new cls(null, options);
 
             component.init(this);
             if (component.isAvailable()) {

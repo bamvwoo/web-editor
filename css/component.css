@@ -1,42 +1,77 @@
 /* Compoent Common Style */
 
+.range-box {
+	position: absolute;
+	z-index: 1;
+}
+
 .margin-box {
-    background-color: rgba(255, 216, 190, .8);
+	background-color: rgba(228, 142, 88, .4);
 }
 
 .padding-box {
-    background-color: rgba(182,207, 182, .6);
+	background-color: rgba(168, 200, 121, .4);
+
+	&.padding-top-box {
+		top: 0;
+		left: 0;
+	}
+	
+	&.padding-bottom-box {
+		bottom: 0;
+		left: 0;
+	}
+
+	&.padding-left-box {
+		top: 0;
+		left: 0;
+	}
+	
+	&.padding-right-box {
+		top: 0;
+		right: 0;
+	}
 }
 
-.margin-box > .padding-box > .comp {
-    background-color: rgba(171, 222, 230, .8);
+.comp:has(.range-box) {
+	background-color: rgba(76, 146, 177, .1);
+}
+
+.comp.selected::before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	content: "";
+	width: calc(100% - 4px);
+	height: calc(100% - 4px);
+	background-color: transparent;
+	border: 2px dashed #ac92b1;
+	z-index: 2;
+}
+
+.comp {
+	position: relative;
 }
 
 .comp:hover {
 	cursor: pointer;
 }
 
-.comp.selected,
-.margin-box:has(.comp.selected) {
-	box-shadow: 0 0 0 2px blue inset;
-}
+.comp-heading {
+	/* Heading Component Common Style */
+	display: flex;
+	align-items: center;
 
-.comp.selected:hover,
-.padding-box:has(.comp.selected):hover .comp.selected,
-.margin-box:has(.comp.selected):hover .comp.selected {
-	box-shadow: unset;
-}
+	/* Heading1 Component Style */
+	&:has(h1) {
+		height: 50px;
+	}
 
-/* Heading Component Common Style */
-
-.comp-heading {}
-
-/* Heading1 Component Style */
-
-.comp-heading h1 {
-	font-size: 2rem;
-	font-weight: 700;
-	color: #444;
+	& > h1 {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #444;
+	}
 }
 
 /* Column Component Common Style */
@@ -44,9 +79,10 @@
 .comp-column {
 	display: flex;
 	height: 500px;
-	padding: 10px;
-}
+	padding: 20px;
+	margin: 10px 0px;
 
-.comp-column > div {
-	flex: 1;
+	& > div {
+		flex: 1;
+	}
 }
