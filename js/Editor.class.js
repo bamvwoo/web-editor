@@ -3,9 +3,12 @@ import ComponentClasses from "./comp/class-list.js";
 export default class Editor {
     #wrapper;
     #sidebar;
-    #draggingComponent = {};
     #components = {};
-    #timer;
+    #dragging = {
+        enabled: false,
+        componentName: null,
+        component: null
+    };
 
     constructor(id) {
         this._id = id;
@@ -28,57 +31,70 @@ export default class Editor {
         this.#sidebar.querySelectorAll(".comp-item").forEach((item) => {
             item.addEventListener("dragstart", (e) => {
                 const compName = item.dataset.name;
-                this.#draggingComponent.name = compName;
-                e.dataTransfer.setData("text/plain", compName);
+                this.#dragging.componentName = compName;
             });
         });
 
-        this.#wrapper.addEventListener("dragenter", (e) => {
+        const dragenterHandler = (e) => {
             e.preventDefault();
             e.stopPropagation();
-        });
 
-        this.#wrapper.addEventListener("dragover", (e) => {
+            if (e.target === this.#wrapper) {
+                if (this.#dragging.enabled) {
+                    return;
+                } else {
+                    this.#dragging.enabled = true;
+    
+                    const compName = this.#dragging.componentName;
+                    const newComponent = this.addComponent(compName);
+                    this.#dragging.component = newComponent;
+                }
+            }
+        }
+
+        const dragoverHandler = (e) => {
             e.preventDefault();
 
-            if (!e.target.closest("#editor")) {
+            if (e.target === this.#wrapper || !this.#dragging.enabled) {
                 return;
             }
 
-            if (this.#draggingComponent.component) {
-                const oldComponent = this.#draggingComponent.component;
-                this.removeComponent(oldComponent.id);
-            }
+            console.log("work");
 
-            const compName = this.#draggingComponent.name;
-            const nextTo = e.target;
+            if (this.#dragging.component) {
+                const draggingElement = this.#dragging.component.getElement();
+                const nextElement = e.target;
 
-            if (nextTo !== this.#wrapper) {
-                const newComponent = this.addComponent(compName, null, nextTo);
-                this.#draggingComponent.component = newComponent;
+                // nextElement.insertAdjacentElement("afterend", draggingElement);
+                nextElement.appendChild(draggingElement);
             }
-        });
+        };
+
+        this.#wrapper.addEventListener("dragenter", dragenterHandler);
+        this.#wrapper.addEventListener("dragleave", dragoverHandler);
 
         // 에디터 드롭 이벤트
         this.#wrapper.addEventListener("drop", (e) => {
             e.preventDefault();
 
-            if (e.target === this.#wrapper) {
+            if (e.target === this.#wrapper || !this.#dragging.enabled) {
                 return;
             }
 
-            if (this.#draggingComponent.component) {
-                const oldComponent = this.#draggingComponent.component;
-                this.removeComponent(oldComponent.id);
+            if (this.#dragging.component) {
+                this.removeComponent(this.#dragging.component.id);
+
+                const compName = this.#dragging.componentName;
+                const nextElement = e.target;
+
+                this.addComponent(compName, null, nextElement);
             }
 
-            const compName = e.dataTransfer.getData("text/plain");
-            const nextElement = e.target;
-
-            this.addComponent(compName, null, nextElement);
-
-            this.#draggingComponent = {};
-            clearInterval(this.#timer);
+            this.#dragging = {
+                enabled: false,
+                componentName: null,
+                component: null
+            };
         });
     }
 
@@ -93,8 +109,7 @@ export default class Editor {
         });
 
         this.#wrapper.addEventListener("mouseover", (e) => {
-            const isDragging = this.#draggingComponent.name !== undefined;
-            if (isDragging) {
+            if (this.#dragging.enabled) {
                 return;
             }
 
@@ -106,8 +121,7 @@ export default class Editor {
         });
 
         this.#wrapper.addEventListener("mouseout", (e) => {
-            const isDragging = this.#draggingComponent.name !== undefined;
-            if (isDragging) {
+            if (this.#dragging.enabled) {
                 return;
             }
 

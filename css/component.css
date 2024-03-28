@@ -52,6 +52,7 @@
 .comp {
 	cursor: pointer;
 	position: relative;
+	transition: .5s ease;
 }
 
 /* Heading Component Style */
