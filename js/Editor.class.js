@@ -235,6 +235,8 @@ export default class Editor {
         if (component) {
             component.getElement().remove();
             delete this.#components[compId];
+
+            // TODO : 내부 컴포넌트 삭제 필요
         }
     }
 
