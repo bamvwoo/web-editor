@@ -16,6 +16,7 @@ export default class Heading extends Component {
 
         this._content = options ? (options.content || Heading.DISPLAY_NAME) : Heading.DISPLAY_NAME;
         this._size = options ? (options.size || 1) : 1;
+        this._styleSelector = "& > h" + this._size;
     }
 
     get size() {
@@ -42,10 +43,5 @@ export default class Heading extends Component {
         if (autoRender) {
             await this.render();
         }
-    }
-
-    setStyle(any, value) {
-        const targetElement = this.getElement().querySelector("h" + this._size);
-        super.setStyle(targetElement, any, value);
     }
 }

@@ -89,16 +89,22 @@ export default class Component {
         return this._id !== null && this.getElement() !== null;
     }
 
-    setStyle(element, any, value) {
-        if (element) {
+    setStyle(any, value) {
+        const styleSelector = this._styleSelector;
+        if (styleSelector && this.getElement().querySelector(styleSelector)) {
+            const styleElement = this.getElement().querySelector(styleSelector);
             if (any instanceof Object) {
                 for (let key in any) {
-                    element.style[key] = any[key];
+                    styleElement.style[key] = any[key];
                 }
             } else if (typeof any === "string") {
-                element.style[any] = value;
+                styleElement.style[any] = value;
             }
         }
+    }
+
+    applyStyle() {
+        
     }
 
     static async getClass(componentName) {
