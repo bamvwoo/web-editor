@@ -31,12 +31,6 @@ export default class Component {
         this._name = name;
     }
 
-    /* Abstract Methods */
-
-    get template() {
-        throw new Error("You have to implement the template getter method");
-    }
-
     getRange() {
         const element = this.getElement();
         const elementStyle = getComputedStyle(element);
@@ -58,7 +52,7 @@ export default class Component {
         }
     }
 
-    init() {
+    async init() {
         // 태그 생성
         this.#templateElement = document.createElement("div");
         this.#templateElement.id = this._id;
@@ -67,18 +61,19 @@ export default class Component {
         this.#templateElement.classList.add(this._className);
 
         // 탬플릿 삽입
-        this.#templateElement.innerHTML = this.template;
+        const template = await this.getTemplate();
+        this.#templateElement.innerHTML = template;
 
         return this.#templateElement;
     }
 
-    render() {
+    async render() {
         if (!this.isAvailable()) {
             throw new Error("Component is not available");
         }
 
-        const element = this.getElement();
-        element.innerHTML = this.template;
+        const element = await this.getElement();
+        element.innerHTML = this.getTemplate();
     }
 
     isSelected() {
@@ -104,5 +99,16 @@ export default class Component {
                 element.style[any] = value;
             }
         }
+    }
+
+    static async getClass(componentName) {
+        const module = await import("./" + componentName + ".js");
+        return module.default;
+    }
+
+    async getTemplate() {
+        const module = await import("../template/" + this._name + ".js");
+        const template = module.default(this);
+        return template;
     }
 }

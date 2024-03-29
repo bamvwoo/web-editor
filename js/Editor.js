@@ -1,4 +1,4 @@
-import ComponentClasses from "./comp/class-list.js";
+import Component from "./comp/Component.js";
 
 export default class Editor {
     #wrapper;
@@ -14,13 +14,13 @@ export default class Editor {
         this.#init.bind(this)();
     }
 
-    #init() {
+    async #init() {
         this.#wrapper = document.getElementById(this._id);
         this.#sidebar = document.querySelector("#" + this._id + " + aside");
 
         this.#initComponentHandler.bind(this)();
         
-        this.#initSidebar.bind(this)();
+        await this.#initSidebar.bind(this)();
 
         this.#initDragging.bind(this)();
         this.#initDragAndDropHandler.bind(this)();
@@ -45,7 +45,7 @@ export default class Editor {
             });
         });
 
-        this.#wrapper.addEventListener("dragenter", (e) => {
+        this.#wrapper.addEventListener("dragenter", async (e) => {
             e.preventDefault();
             e.stopPropagation();
 
@@ -56,7 +56,7 @@ export default class Editor {
                     this.#dragging.enabled = true;
     
                     const compName = this.#dragging.componentName;
-                    const newComponent = this.addComponent(compName);
+                    const newComponent = await this.addComponent(compName);
                     const draggingElement = newComponent.getElement();
 
                     draggingElement.classList.add("comp-dragging");
@@ -174,11 +174,14 @@ export default class Editor {
         });
     }
 
-    #initSidebar() {
+    async #initSidebar() {
         let template = '<ul class="comp-list">';
 
-        for (let compClsName in ComponentClasses) {
-            const compCls = ComponentClasses[compClsName];
+        const module = await import("./component-list.js");
+        const compClasses = module.default;
+
+        for (let compName in compClasses) {
+            const compCls = compClasses[compName];
             const compProps = compCls.PROPS;
 
             template += `
@@ -198,15 +201,15 @@ export default class Editor {
         return this.#wrapper;
     }
 
-    addComponent(componentName, options, nextTo) {
-        const cls = ComponentClasses[componentName];
+    async addComponent(componentName, options, nextTo) {
+        const cls = await Component.getClass(componentName);
 
         let component;
         if (cls) {
             const id = options ? options.id : null;
             component = new cls(id, options);
 
-            const templateElement = component.init();
+            const templateElement = await component.init();
             if (nextTo) {
                 nextTo.insertAdjacentElement("afterend", templateElement);
             } else {

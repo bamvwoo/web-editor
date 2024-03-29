@@ -1,5 +1,5 @@
-import Heading from './Heading.js';
-import Column from './Column.js';
+import Heading from './comp/Heading.js';
+import Column from './comp/Column.js';
 
 let classList = {};
 

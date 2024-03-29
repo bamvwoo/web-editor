@@ -1,9 +1,9 @@
-import Editor from "./Editor.class.js";
+import Editor from "./Editor.js";
 
-window.onload = () => {
+window.onload = async () => {
     const editor = new Editor("editor");
 
-    const heading = editor.addComponent("Heading", {
+    const heading = await editor.addComponent("Heading", {
         content: "Hello, World!"
     });
 
@@ -12,10 +12,10 @@ window.onload = () => {
         color: "red"
     });
 
-    const column2 = editor.addComponent("Column", {
+    const column2 = await editor.addComponent("Column", {
         size: 2
     });
-    const column3 = editor.addComponent("Column", {
+    const column3 = await editor.addComponent("Column", {
         size: 3
     });
 }

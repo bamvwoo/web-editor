@@ -15,13 +15,11 @@ export default class Column extends Component {
         this._size = options ? (options.size || 1) : 1;
     }
 
-    get template() {
-        let template = "";
+    get size() {
+        return this._size;
+    }
 
-        for (let i = 0; i < this._size; i++) {
-            template += `<div></div>`;
-        };
-
-        return template
+    set size(size) {
+        this._size = size;
     }
 }

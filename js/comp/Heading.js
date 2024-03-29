@@ -18,22 +18,34 @@ export default class Heading extends Component {
         this._size = options ? (options.size || 1) : 1;
     }
 
-    setContent(content, autoRender) {
+    get size() {
+        return this._size;
+    }
+
+    set size(size) {
+        this._size = size;
+    }
+
+    get content() {
+        return this._content;
+    }
+
+    set content(content) {
+        this._content = content;
+    }
+
+    async setContent(content, autoRender) {
         autoRender = autoRender === undefined ? true : autoRender;
 
         this._content = content;
 
         if (autoRender) {
-            this.render();
+            await this.render();
         }
     }
 
     setStyle(any, value) {
         const targetElement = this.getElement().querySelector("h" + this._size);
         super.setStyle(targetElement, any, value);
-    }
-
-    get template() {
-        return `<h${this._size}>${this._content}</h${this._size}>`;
     }
 }
