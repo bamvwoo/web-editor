@@ -35,7 +35,7 @@ export default class Editor {
             });
         });
 
-        const dragenterHandler = (e) => {
+        this.#wrapper.addEventListener("dragenter", (e) => {
             e.preventDefault();
             e.stopPropagation();
 
@@ -50,45 +50,60 @@ export default class Editor {
                     this.#dragging.component = newComponent;
                 }
             }
-        }
+        });
 
-        const dragoverHandler = (e) => {
+        this.#wrapper.addEventListener("dragover", (e) => {
             e.preventDefault();
+            e.stopPropagation();
 
-            if (e.target === this.#wrapper || !this.#dragging.enabled) {
+            if (!this.#dragging.enabled) {
                 return;
             }
 
-            console.log("work");
-
             if (this.#dragging.component) {
                 const draggingElement = this.#dragging.component.getElement();
-                const nextElement = e.target;
+                const focusedElement = e.target;
 
-                // nextElement.insertAdjacentElement("afterend", draggingElement);
-                nextElement.appendChild(draggingElement);
+                if (focusedElement.classList.contains("comp") || focusedElement.tagName === "DIV") {
+                    document.querySelectorAll("div.focused").forEach((comp) => {
+                        comp.classList.remove("focused");
+                    });
+
+                    focusedElement.classList.add("focused");
+
+                    if (focusedElement.classList.contains("comp")) {
+                        focusedElement.insertAdjacentElement("afterend", draggingElement);
+                    } else if (focusedElement.tagName === "DIV") {
+                        focusedElement.appendChild(draggingElement);
+                    }
+                }
             }
-        };
+        });
 
-        this.#wrapper.addEventListener("dragenter", dragenterHandler);
-        this.#wrapper.addEventListener("dragleave", dragoverHandler);
+        this.#wrapper.addEventListener("dragleave", (e) => {
+
+        });
 
         // 에디터 드롭 이벤트
         this.#wrapper.addEventListener("drop", (e) => {
             e.preventDefault();
 
-            if (e.target === this.#wrapper || !this.#dragging.enabled) {
+            if (!this.#dragging.enabled) {
                 return;
             }
 
-            if (this.#dragging.component) {
-                this.removeComponent(this.#dragging.component.id);
+            document.querySelectorAll("div.focused").forEach((comp) => {
+                comp.classList.remove("focused");
+            });
 
-                const compName = this.#dragging.componentName;
-                const nextElement = e.target;
-
-                this.addComponent(compName, null, nextElement);
-            }
+            
+            const draggingElement = this.#dragging.component.getElement();
+            setTimeout(() => {
+                draggingElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }, 100);
 
             this.#dragging = {
                 enabled: false,

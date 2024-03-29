@@ -37,3 +37,20 @@
         }
     }
 }
+
+div.focused {
+    position: relative;
+    border-radius: 10px;
+    transition: .2s ease;
+    background-color: #f2f2f2;
+    
+    &::before {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        content: "여기에 컴포넌트 놓기";
+        color: rgba(0, 0, 0, .3);
+        font-size: 1.5rem;
+    }
+}
