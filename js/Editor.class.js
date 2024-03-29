@@ -3,14 +3,10 @@ import ComponentClasses from "./comp/class-list.js";
 export default class Editor {
     #wrapper;
     #sidebar;
+
+    #dragging;
+
     #components = {};
-    #dragging = {
-        enabled: false,
-        componentName: null,
-        component: null,
-        element: null,
-        focusedElement: null
-    };
 
     constructor(id) {
         this._id = id;
@@ -25,7 +21,19 @@ export default class Editor {
         this.#initComponentHandler.bind(this)();
         
         this.#initSidebar.bind(this)();
+
+        this.#initDragging.bind(this)();
         this.#initDragAndDropHandler.bind(this)();
+    }
+
+    #initDragging() {
+        this.#dragging = {
+            enabled: false,
+            componentName: null,
+            component: null,
+            element: null,
+            focusedElement: null
+        };
     }
 
     #initDragAndDropHandler() {
@@ -100,13 +108,16 @@ export default class Editor {
         });
 
         this.#wrapper.addEventListener("dragleave", (e) => {
+            /*
+            const draggingComponent = this.#dragging.component;
+            this.removeComponent(draggingComponent.id);
 
+            this.#initDragging.bind(this)();
+             */
         });
 
         // 에디터 드롭 이벤트
         this.#wrapper.addEventListener("drop", (e) => {
-            e.preventDefault();
-
             if (!this.#dragging.enabled) {
                 return;
             }
@@ -115,7 +126,6 @@ export default class Editor {
                 comp.classList.remove("focused");
             });
 
-            
             const draggingElement = this.#dragging.component.getElement();
             draggingElement.classList.remove("comp-dragging");
             setTimeout(() => {
@@ -124,12 +134,8 @@ export default class Editor {
                     block: "center"
                 });
             }, 100);
-
-            this.#dragging = {
-                enabled: false,
-                componentName: null,
-                component: null
-            };
+            
+            this.#initDragging.bind(this)();
         });
     }
 
@@ -238,7 +244,13 @@ export default class Editor {
      * @param {*} e 
      */
     selectComponent(compId, e) {
-        e.stopPropagation();
+        if (e) {
+            e.stopPropagation();
+
+            if (e.target.closest(".comp-tool-box")) {
+                return;
+            }
+        }
 
         const comp = this.getComponent(compId);
         if (!comp) {
@@ -247,14 +259,90 @@ export default class Editor {
         
         const element = this.getComponentElement(compId);
         if (comp.isSelected()) {
-            element.classList.remove("selected");
+            this.unselectComponent(compId, e);
         } else {
-            document.querySelectorAll(".comp.selected").forEach((comp) => {
-                comp.classList.remove("selected");
+            document.querySelectorAll(".comp.selected").forEach((selectedComp) => {
+                let selectedCompId = selectedComp.id;
+                this.unselectComponent(selectedCompId, e);
             });
 
             element.classList.add("selected");
+            this.showComponentToolBox(compId);
         }
+    }
+
+    /**
+     * 
+     * @param {*} compId 
+     * @param {*} e 
+     */
+    unselectComponent(compId, e) {
+        if (e) {
+            e.stopPropagation();
+        }
+
+        const comp = this.getComponent(compId);
+        if (!comp) {
+            return;
+        }
+
+        const element = this.getComponentElement(compId);
+        if (comp.isSelected()) {
+            element.classList.remove("selected");
+            this.hideComponentToolBox(compId);
+        }
+    }
+
+    /**
+     * 
+     * @param {*} compId 
+     */
+    showComponentToolBox(compId) {
+        const comp = this.getComponent(compId);
+        if (!comp) {
+            return;
+        }
+        
+        const toolBoxElement = document.createElement("div");
+        const toolBoxTemplate = `
+            <button class="btn-edit-comp">편집</button>
+            <button class="btn-move-comp">이동</button>
+            <button class="btn-delete-comp">삭제</button>
+        `;
+
+        toolBoxElement.classList.add("comp-tool-box");
+        toolBoxElement.dataset.compId = compId;
+        toolBoxElement.innerHTML = toolBoxTemplate;
+
+        toolBoxElement.querySelector(".btn-edit-comp").addEventListener("click", (e) => {
+            const compId = e.target.parentNode.dataset.compId;
+        });
+        toolBoxElement.querySelector(".btn-move-comp").addEventListener("click", (e) => {
+            const compId = e.target.parentNode.dataset.compId;
+        });
+        toolBoxElement.querySelector(".btn-delete-comp").addEventListener("click", (e) => {
+            const compId = e.target.parentNode.dataset.compId;
+            this.removeComponent(compId);
+        });
+        
+        const element = this.getComponentElement(compId);
+        element.appendChild(toolBoxElement);
+    }
+
+    /**
+     * 
+     * @param {*} compId 
+     */
+    hideComponentToolBox(compId) {
+        const comp = this.getComponent(compId);
+        if (!comp) {
+            return;
+        }
+
+        const element = this.getComponentElement(compId);
+        element.querySelectorAll(".comp-tool-box").forEach((toolBox) => {
+            toolBox.remove();
+        });
     }
 
     /**
@@ -263,7 +351,9 @@ export default class Editor {
      * @returns 
      */
     showComponentRange(compId, e) {
-        e.stopPropagation();
+        if (e) {
+            e.stopPropagation();
+        }
 
         const comp = this.getComponent(compId);
         if (!comp) {
@@ -336,7 +426,9 @@ export default class Editor {
      * @param {*} e 
      */
     hideComponentRange(compId, e) {
-        e.stopPropagation();
+        if (e) {
+            e.stopPropagation();
+        }
 
         const element = this.getComponentElement(compId);
         if (!element) {

@@ -38,7 +38,7 @@
 	background-color: rgba(76, 146, 177, .1);
 }
 
-.comp.selected::before {
+.comp.selected::after {
 	position: absolute;
 	top: 0;
 	left: 0;
