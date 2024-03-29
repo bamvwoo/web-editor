@@ -7,7 +7,9 @@ export default class Editor {
     #dragging = {
         enabled: false,
         componentName: null,
-        component: null
+        component: null,
+        element: null,
+        focusedElement: null
     };
 
     constructor(id) {
@@ -47,7 +49,12 @@ export default class Editor {
     
                     const compName = this.#dragging.componentName;
                     const newComponent = this.addComponent(compName);
+                    const draggingElement = newComponent.getElement();
+
+                    draggingElement.classList.add("comp-dragging");
+
                     this.#dragging.component = newComponent;
+                    this.#dragging.element = draggingElement;
                 }
             }
         });
@@ -56,27 +63,39 @@ export default class Editor {
             e.preventDefault();
             e.stopPropagation();
 
-            if (!this.#dragging.enabled) {
+            if (!this.#dragging.enabled || e.target.classList.contains("comp-dragging")) {
                 return;
             }
 
-            if (this.#dragging.component) {
-                const draggingElement = this.#dragging.component.getElement();
-                const focusedElement = e.target;
+            const draggingElement = this.#dragging.element;
+            let focusedElement = this.#dragging.focusedElement;
 
-                if (focusedElement.classList.contains("comp") || focusedElement.tagName === "DIV") {
-                    document.querySelectorAll("div.focused").forEach((comp) => {
-                        comp.classList.remove("focused");
-                    });
+            if (focusedElement && focusedElement === e.target) {
+                return;
+            } else {
+                focusedElement = e.target;
+                this.#dragging.focusedElement = focusedElement;
+            }
 
-                    focusedElement.classList.add("focused");
+            if (focusedElement.classList.contains("comp") || focusedElement.tagName === "DIV") {
+                document.querySelectorAll("div.focused").forEach((comp) => {
+                    comp.classList.remove("focused", "focused-comp", "focused-div");
+                });
 
-                    if (focusedElement.classList.contains("comp")) {
-                        focusedElement.insertAdjacentElement("afterend", draggingElement);
-                    } else if (focusedElement.tagName === "DIV") {
-                        focusedElement.appendChild(draggingElement);
-                    }
+                focusedElement.classList.add("focused");
+                draggingElement.classList.add("positioned");
+                
+                if (focusedElement.classList.contains("comp")) {
+                    focusedElement.classList.add("focused-comp");
+                    focusedElement.insertAdjacentElement("afterend", draggingElement);
+                } else if (focusedElement.tagName === "DIV") {
+                    focusedElement.classList.add("focused-div");
+                    focusedElement.appendChild(draggingElement);
                 }
+
+                setTimeout(() => {
+                    draggingElement.classList.remove("positioned");
+                }, 500);
             }
         });
 
@@ -98,6 +117,7 @@ export default class Editor {
 
             
             const draggingElement = this.#dragging.component.getElement();
+            draggingElement.classList.remove("comp-dragging");
             setTimeout(() => {
                 draggingElement.scrollIntoView({
                     behavior: "smooth",

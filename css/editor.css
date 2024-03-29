@@ -49,8 +49,33 @@ div.focused {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        content: "여기에 컴포넌트 놓기";
         color: rgba(0, 0, 0, .3);
         font-size: 1.5rem;
+    }
+    
+    &.focused-div::before {
+        content: "여기에 컴포넌트 놓기";
+    }
+
+    &.focused-comp::before {
+        content: "이 다음에 컴포넌트 놓기";
+    }
+}
+
+.comp-dragging {
+    opacity: .5;
+
+    &.positioned {
+        transform-origin: top left;
+        animation: insert-element .3s;
+    }
+}
+
+@keyframes insert-element {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
     }
 }
