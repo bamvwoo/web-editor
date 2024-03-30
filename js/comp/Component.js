@@ -1,7 +1,12 @@
 import { createUniqueId } from "../utils.js";
+import ComponentStyle from "../comp-style/ComponentStyle.js";
 
 export default class Component {
-    #templateElement;
+    static NAME_HEADING = "Heading";
+    static NAME_COLUMN = "Column";
+
+    #temporaryElement;
+    #style = {};
 
     constructor(id, props) {
         if (this.constructor === Component) {
@@ -13,6 +18,7 @@ export default class Component {
         this._displayName = props.displayName;
         this._className = props.className;
         this._thumbnail = props.thumbnail;
+        this._style = props.style ? { ...props.style } : {};
     }
 
     get id() {
@@ -29,6 +35,14 @@ export default class Component {
 
     set name(name) {
         this._name = name;
+    }
+
+    get displayName() {
+        return this._displayName.default;
+    }
+
+    set displayName(displayName) {
+        this._displayName.default = displayName;
     }
 
     getRange() {
@@ -54,17 +68,33 @@ export default class Component {
 
     async init() {
         // 태그 생성
-        this.#templateElement = document.createElement("div");
-        this.#templateElement.id = this._id;
+        this.#temporaryElement = document.createElement("div");
+        this.#temporaryElement.id = this._id;
 
-        this.#templateElement.classList.add("comp");
-        this.#templateElement.classList.add(this._className);
+        this.#temporaryElement.classList.add("comp");
+        this.#temporaryElement.classList.add(this._className);
 
         // 탬플릿 삽입
         const template = await this.getTemplate();
-        this.#templateElement.innerHTML = template;
+        this.#temporaryElement.innerHTML = template;
 
-        return this.#templateElement;
+        // 스타일 초기화
+        await this.#initStyle.bind(this)();        
+    }
+
+    async #initStyle() {
+        const styleItems = this._style.items;
+        if (styleItems) {
+            let styleInstances = [];
+            for (const styleName of styleItems) {
+                const styleCls = await ComponentStyle.getClass(styleName);
+                if (styleCls) {
+                    styleInstances.push(new styleCls());
+                }
+            }
+            
+            this._style.items = styleInstances;
+        }
     }
 
     async render() {
@@ -72,8 +102,8 @@ export default class Component {
             throw new Error("Component is not available");
         }
 
-        const element = await this.getElement();
-        element.innerHTML = this.getTemplate();
+        const element = this.getElement();
+        element.innerHTML = await this.getTemplate();
     }
 
     isSelected() {
@@ -89,32 +119,87 @@ export default class Component {
         return this._id !== null && this.getElement() !== null;
     }
 
-    setStyle(any, value) {
-        const styleSelector = this._styleSelector;
-        if (styleSelector && this.getElement().querySelector(styleSelector)) {
-            const styleElement = this.getElement().querySelector(styleSelector);
-            if (any instanceof Object) {
-                for (let key in any) {
-                    styleElement.style[key] = any[key];
-                }
-            } else if (typeof any === "string") {
-                styleElement.style[any] = value;
-            }
-        }
+    getTemporaryElement() {
+        return this.#temporaryElement;
     }
 
-    applyStyle() {
-        
+    getStyleSelector() {
+        if (!this._style) {
+            this._style = {};
+        }
+        return this._style.selector;
+    }
+
+    setStyleSelector(selector) {
+        if (!this._style) {
+            this._style = {};
+        }
+        this._style.selector = selector;
+    }
+
+    #getStyle() {
+        return this._style;
+    }
+
+    setStyle(any, value, clear) {
+        clear = clear === undefined ? false : clear;
+
+        const newStyle = clear ? {} : this.#getStyle();
+        if (any instanceof Object) {
+            for (let key in any) {
+                newStyle[key] = any[key];
+            }
+        } else if (typeof any === "string") {
+            newStyle[any] = value;
+        }
+
+        this.#applyStyle(newStyle, clear);
+    }
+
+    #applyStyle(style, clear) {
+        const element = this.getElement();
+        const styleSelector = this.getStyleSelector();
+
+        let targetElement;
+        if (styleSelector) {
+            targetElement = element.querySelector(styleSelector);
+        } else {
+            targetElement = element;
+        }
+
+        if (targetElement) {
+            if (clear) {
+                targetElement.style.cssText = "";
+            }
+
+            for (let key in style) {
+                targetElement.style[key] = style[key];
+            }
+        }
+
+        this.#style = style;
     }
 
     static async getClass(componentName) {
-        const module = await import("./" + componentName + ".js");
-        return module.default;
+        try {
+            const module = await import("./" + componentName + ".js");
+            return module.default;
+        } catch (e) {
+            return null;
+        }
     }
 
     async getTemplate() {
-        const module = await import("../template/" + this._name + ".js");
-        const template = module.default(this);
-        return template;
+        try {
+            const module = await import("../template/" + this._name + ".js");
+            return module.default(this);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    static getComponentNames() {
+        const staticKeys = Object.keys(Component).filter(key => key.startsWith("NAME_"));
+        return staticKeys.map(key => Component[key]);
     }
 }

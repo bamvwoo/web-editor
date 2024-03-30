@@ -1,30 +1,37 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import Component from "../js/comp/Component.js";
+
 export default class Editor {
-    constructor(id) {
-        this.components = {};
+    private id: string;
+    private wrapper: HTMLElement;
+    private sidebar: HTMLElement;
+    private dragging: { 
+        enabled: boolean, 
+        componentName: string, 
+        component: Component, 
+        element: HTMLElement, 
+        focusedElement: HTMLElement
+    };
+    private components: { [key: string]: Component } = {};
+
+    constructor(id: string) {
         this.id = id;
+
         this.init.bind(this)();
     }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.wrapper = document.getElementById(this.id);
-            this.sidebar = document.querySelector("#" + this.id + " + aside");
-            this.initComponentHandler.bind(this)();
-            yield this.initSidebar.bind(this)();
-            this.initDragging.bind(this)();
-            this.initDragAndDropHandler.bind(this)();
-        });
+
+    private async init(): Promise<void> {
+        this.wrapper = document.getElementById(this.id);
+        this.sidebar = document.querySelector("#" + this.id + " + aside");
+
+        this.initComponentHandler.bind(this)();
+        
+        await this.initSidebar.bind(this)();
+
+        this.initDragging.bind(this)();
+        this.initDragAndDropHandler.bind(this)();
     }
-    initDragging() {
+
+    private initDragging(): void {
         this.dragging = {
             enabled: false,
             componentName: null,
@@ -33,79 +40,89 @@ export default class Editor {
             focusedElement: null
         };
     }
-    initDragAndDropHandler() {
+
+    private initDragAndDropHandler(): void {
         // 사이드바 드래그 이벤트
-        this.sidebar.querySelectorAll(".comp-item").forEach((item) => {
+        this.sidebar.querySelectorAll(".comp-item").forEach((item: HTMLElement) => {
             item.addEventListener("dragstart", (e) => {
-                const compName = item.dataset.name;
+                const compName: string = item.dataset.name;
                 this.dragging.componentName = compName;
             });
         });
-        this.wrapper.addEventListener("dragenter", (e) => __awaiter(this, void 0, void 0, function* () {
+
+        this.wrapper.addEventListener("dragenter", async (e: DragEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            if (e.target === this.wrapper) {
+
+            if ((e.target as HTMLElement) === this.wrapper) {
                 if (this.dragging.enabled) {
                     return;
-                }
-                else {
+                } else {
                     this.dragging.enabled = true;
-                    const compName = this.dragging.componentName;
-                    const newComponent = yield this.addComponent(compName);
-                    const draggingElement = newComponent.getElement();
+    
+                    const compName: string = this.dragging.componentName;
+                    const newComponent: Component = await this.addComponent(compName);
+                    const draggingElement: HTMLElement = newComponent.getElement();
+
                     draggingElement.classList.add("comp-dragging");
+
                     this.dragging.component = newComponent;
                     this.dragging.element = draggingElement;
                 }
             }
-        }));
-        this.wrapper.addEventListener("dragover", (e) => {
+        });
+
+        this.wrapper.addEventListener("dragover", (e: DragEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            const target = e.target;
+
+            const target: HTMLElement = e.target as HTMLElement;
             if (!this.dragging.enabled || target.classList.contains("comp-dragging")) {
                 return;
             }
-            const draggingElement = this.dragging.element;
-            let focusedElement = this.dragging.focusedElement;
+
+            const draggingElement: HTMLElement = this.dragging.element;
+            let focusedElement: HTMLElement = this.dragging.focusedElement;
+
             if (!draggingElement || focusedElement && focusedElement === target) {
                 return;
-            }
-            else {
+            } else {
                 focusedElement = target;
                 this.dragging.focusedElement = focusedElement;
             }
+
             if (focusedElement.classList.contains("comp") || focusedElement.tagName === "DIV") {
-                document.querySelectorAll("div.focused").forEach((compElem) => {
+                document.querySelectorAll("div.focused").forEach((compElem: HTMLElement) => {
                     compElem.classList.remove("focused", "focused-comp", "focused-div");
                 });
+                
                 draggingElement.classList.add("positioned");
+                
                 try {
                     if (focusedElement.classList.contains("comp")) {
                         // 현재 포커스된 요소가 컴포넌트인 경우
                         if (e.pageY < focusedElement.offsetTop + focusedElement.offsetHeight / 2) {
                             // 마우스 포인터가 컴포넌트의 상단에 위치한 경우 -> 컴포넌트 앞에 삽입
                             focusedElement.insertAdjacentElement("beforebegin", draggingElement);
-                        }
-                        else {
+                        } else {
                             // 마우스 포인터가 컴포넌트의 하단에 위치한 경우 -> 컴포넌트 뒤에 삽입
                             focusedElement.insertAdjacentElement("afterend", draggingElement);
                         }
-                    }
-                    else if (focusedElement.tagName === "DIV") {
+                    } else if (focusedElement.tagName === "DIV") {
                         // 현재 포커스된 요소가 DIV인 경우 -> DIV 내부에 삽입
                         focusedElement.appendChild(draggingElement);
                     }
+    
                     setTimeout(() => {
                         draggingElement.classList.remove("positioned");
                     }, 500);
-                }
-                catch (e) {
+                } catch (e) {
                     // do nothing
                 }
             }
         });
-        this.wrapper.addEventListener("dragleave", (e) => {
+
+        this.wrapper.addEventListener("dragleave", (e: DragEvent) => {
             /*
             const draggingComponent = this.#dragging.component;
             this.removeComponent(draggingComponent.id);
@@ -113,15 +130,18 @@ export default class Editor {
             this.#initDragging.bind(this)();
              */
         });
+
         // 에디터 드롭 이벤트
-        this.wrapper.addEventListener("drop", (e) => {
+        this.wrapper.addEventListener("drop", (e: DragEvent) => {
             if (!this.dragging.enabled) {
                 return;
             }
+
             document.querySelectorAll("div.focused").forEach((comp) => {
                 comp.classList.remove("focused");
             });
-            const draggingElement = this.dragging.component.getElement();
+
+            const draggingElement: HTMLElement = this.dragging.component.getElement();
             draggingElement.classList.remove("comp-dragging");
             setTimeout(() => {
                 draggingElement.scrollIntoView({
@@ -129,273 +149,328 @@ export default class Editor {
                     block: "center"
                 });
             }, 100);
+            
             this.initDragging.bind(this)();
         });
     }
-    initComponentHandler() {
+
+    private initComponentHandler(): void {
         // 컴포넌트 클릭 이벤트
-        this.wrapper.addEventListener("click", (e) => {
-            const target = e.target.closest(".comp");
+        this.wrapper.addEventListener("click", (e: MouseEvent) => {
+            const target: HTMLElement = (e.target as HTMLElement).closest(".comp");
             if (target) {
-                const compId = target.id;
+                const compId: string = target.id;
                 this.selectComponent(compId, e);
             }
         });
-        this.wrapper.addEventListener("mouseover", (e) => {
+
+        this.wrapper.addEventListener("mouseover", (e: MouseEvent) => {
             if (this.dragging.enabled) {
                 return;
             }
-            const target = e.target.closest(".comp");
+
+            const target: HTMLElement = (e.target as HTMLElement).closest(".comp");
             if (target) {
-                const compId = target.id;
+                const compId: string = target.id;
                 this.showComponentRange(compId, e);
             }
         });
-        this.wrapper.addEventListener("mouseout", (e) => {
+
+        this.wrapper.addEventListener("mouseout", (e: MouseEvent) => {
             if (this.dragging.enabled) {
                 console.log("work");
+                
                 return;
             }
-            const target = e.target.closest(".comp");
+
+            const target: HTMLElement = (e.target as HTMLElement).closest(".comp");
             if (target) {
-                const compId = target.id;
+                const compId: string = target.id;
                 this.hideComponentRange(compId, e);
             }
         });
     }
-    initSidebar() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let template = '<ul class="comp-list">';
-            const compNames = Component.getComponentNames();
-            for (let compName of compNames) {
-                const compCls = yield Component.getClass(compName);
-                const compProps = compCls.PROPS;
-                template += `
+
+    private async initSidebar(): Promise<void> {
+        let template: string = '<ul class="comp-list">';
+
+        const compNames: string[] = Component.getComponentNames();
+        for (let compName of compNames) {
+            const compCls: typeof Component = await Component.getClass(compName);
+            const compProps: {
+                name: string,
+                thumbnail: string,
+                displayName: { default: string, ko?: string }
+            } = compCls.PROPS;
+
+            template += `
                 <li class="comp-item" data-name="${compProps.name}" draggable="true">
                     <img src="${compProps.thumbnail}" alt="${compProps.displayName.default}">
                     <p>${compProps.displayName.default}</p>
                 </li>
             `;
-            }
-            template += '</ul>';
-            this.sidebar.innerHTML = template;
-        });
+        }
+
+        template += '</ul>';
+
+        this.sidebar.innerHTML = template;
     }
-    getWrapper() {
+
+    private getWrapper(): HTMLElement {
         return this.wrapper;
     }
-    addComponent(componentName, options, nextTo) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const cls = yield Component.getClass(componentName);
-            let component;
-            if (cls) {
-                const id = options ? options.id : null;
-                component = new cls(id, options);
-                yield component.init();
-                const temporaryElement = component.getTemporaryElement();
-                if (nextTo) {
-                    nextTo.insertAdjacentElement("afterend", temporaryElement);
-                }
-                else {
-                    this.getWrapper().appendChild(temporaryElement);
-                }
-                if (component.isAvailable()) {
-                    this.components[component.id] = component;
-                }
+
+    async addComponent(componentName: string, options?: { id?: string, size?: number, content?: string }, nextTo?: HTMLElement): Component {
+        const cls: typeof Component = await Component.getClass(componentName);
+
+        let component: Component;
+        if (cls) {
+            const id: string = options ? options.id : null;
+            
+            component = new cls(id, options);
+            await component.init();
+
+            const temporaryElement = component.getTemporaryElement();
+            if (nextTo) {
+                nextTo.insertAdjacentElement("afterend", temporaryElement);
+            } else {
+                this.getWrapper().appendChild(temporaryElement);
             }
-            return component;
-        });
+
+            if (component.isAvailable()) {
+                this.components[component.id] = component;
+            }
+        }
+        
+        return component;
     }
-    getComponent(compId) {
+
+    public getComponent(compId: string): Component {
         return this.components[compId];
     }
-    getComponentElement(compId) {
-        const component = this.getComponent(compId);
+
+    public getComponentElement(compId: string): HTMLElement {
+        const component: Component = this.getComponent(compId);
         return component ? component.getElement() : null;
     }
-    removeComponent(compId) {
-        const component = this.getComponent(compId);
+
+    public removeComponent(compId: string): void {
+        const component: Component = this.getComponent(compId);
         if (component) {
             component.getElement().remove();
             delete this.components[compId];
+
             // TODO : 내부 컴포넌트 삭제 필요
         }
     }
+
     /**
      * 컴포넌트 선택
      * @param compId
-     * @param e
-     * @returns
+     * @param e 
+     * @returns 
      */
-    selectComponent(compId, e) {
+    selectComponent(compId: string, e: MouseEvent): void {
         if (e) {
             e.stopPropagation();
-            if (e.target.closest(".comp-tool-box")) {
+
+            if ((e.target as HTMLElement).closest(".comp-tool-box")) {
                 return;
             }
         }
-        const comp = this.getComponent(compId);
+
+        const comp: Component = this.getComponent(compId);
         if (!comp) {
             return;
         }
-        const element = this.getComponentElement(compId);
+        
+        const element: HTMLElement = this.getComponentElement(compId);
         if (comp.isSelected()) {
             this.unselectComponent(compId, e);
-        }
-        else {
-            document.querySelectorAll(".comp.selected").forEach((selectedComp) => {
-                let selectedCompId = selectedComp.id;
+        } else {
+            document.querySelectorAll(".comp.selected").forEach((selectedComp: HTMLElement) => {
+                let selectedCompId: string = selectedComp.id;
                 this.unselectComponent(selectedCompId, e);
             });
+
             element.classList.add("selected");
             this.showComponentToolBox(compId);
         }
     }
+
     /**
      * 컴포넌트 선택 해제
-     * @param compId
-     * @param e
-     * @returns
+     * @param compId 
+     * @param e 
+     * @returns 
      */
-    unselectComponent(compId, e) {
+    unselectComponent(compId: string, e: MouseEvent): void {
         if (e) {
             e.stopPropagation();
         }
-        const comp = this.getComponent(compId);
+
+        const comp: Component = this.getComponent(compId);
         if (!comp) {
             return;
         }
-        const element = this.getComponentElement(compId);
+
+        const element: HTMLElement = this.getComponentElement(compId);
         if (comp.isSelected()) {
             element.classList.remove("selected");
             this.hideComponentToolBox(compId);
         }
     }
+
     /**
-     *
-     * @param compId
-     * @returns
+     * 
+     * @param compId 
+     * @returns 
      */
-    showComponentToolBox(compId) {
-        const comp = this.getComponent(compId);
+    showComponentToolBox(compId: string): void {
+        const comp: Component = this.getComponent(compId);
         if (!comp) {
             return;
         }
-        const toolBoxElement = document.createElement("div");
-        const toolBoxTemplate = `
+        
+        const toolBoxElement: HTMLElement = document.createElement("div");
+        const toolBoxTemplate: string = `
             <button class="btn-edit-comp">편집</button>
             <button class="btn-move-comp">이동</button>
             <button class="btn-delete-comp">삭제</button>
         `;
+
         toolBoxElement.classList.add("comp-tool-box");
         toolBoxElement.dataset.compId = compId;
         toolBoxElement.innerHTML = toolBoxTemplate;
+
         toolBoxElement.querySelector(".btn-edit-comp").addEventListener("click", (e) => {
-            const compId = e.target.parentNode.dataset.compId;
+            const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
         });
         toolBoxElement.querySelector(".btn-move-comp").addEventListener("click", (e) => {
-            const compId = e.target.parentNode.dataset.compId;
+            const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
         });
         toolBoxElement.querySelector(".btn-delete-comp").addEventListener("click", (e) => {
-            const compId = e.target.parentNode.dataset.compId;
+            const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
             this.removeComponent(compId);
         });
-        const element = this.getComponentElement(compId);
+        
+        const element: HTMLElement = this.getComponentElement(compId);
         element.appendChild(toolBoxElement);
     }
+
     /**
-     *
-     * @param compId
-     * @returns
+     * 
+     * @param compId 
+     * @returns 
      */
-    hideComponentToolBox(compId) {
-        const comp = this.getComponent(compId);
+    hideComponentToolBox(compId: string): void {
+        const comp: Component = this.getComponent(compId);
         if (!comp) {
             return;
         }
-        const element = this.getComponentElement(compId);
-        element.querySelectorAll(".comp-tool-box").forEach((toolBox) => {
+
+        const element: HTMLElement = this.getComponentElement(compId);
+        element.querySelectorAll(".comp-tool-box").forEach((toolBox: HTMLElement) => {
             toolBox.remove();
         });
     }
+
     /**
      * 컴포넌트 요소 범위 표시
-     * @param compId
-     * @param e
-     * @returns
+     * @param compId 
+     * @param e 
+     * @returns 
      */
-    showComponentRange(compId, e) {
+    showComponentRange(compId: string, e: MouseEvent): void {
         if (e) {
             e.stopPropagation();
         }
-        const comp = this.getComponent(compId);
+
+        const comp: Component = this.getComponent(compId);
         if (!comp) {
             return;
         }
-        const element = this.getComponentElement(compId);
-        const elementStyle = getComputedStyle(element);
-        const range = comp.getRange();
+        
+        const element: HTMLElement = this.getComponentElement(compId);
+        const elementStyle: CSSStyleDeclaration = getComputedStyle(element);
+
+        type Range = { margin: { top: string, right: string, bottom: string, left: string }, padding: { top: string, right: string, bottom: string, left: string } };
+        const range: Range = comp.getRange();
+
         // Margin Box 생성
         for (let position in range.margin) {
-            const boxElement = document.createElement("span");
+            const boxElement: HTMLElement = document.createElement("span");
             boxElement.classList.add("range-box", "margin-box", "margin-" + position + "-box");
-            const value = range.margin[position];
+            
+            const value: string = range.margin[position];
             if (position === "top" || position === "bottom") {
-                boxElement.style.width = parseFloat(elementStyle.width) + (parseFloat(range.margin.left) + parseFloat(range.margin.right)) + "px";
+                boxElement.style.width = parseFloat(elementStyle.width) + (
+                    parseFloat(range.margin.left) + parseFloat(range.margin.right)
+                ) + "px";
                 boxElement.style.height = value;
+
                 if (position === "top") {
                     boxElement.style.top = "-" + value;
-                }
-                else {
+                } else {
                     boxElement.style.bottom = "-" + value;
                 }
+
                 boxElement.style.left = "-" + range.margin.left;
-            }
-            else if (position === "left" || position === "right") {
+            } else if (position === "left" || position === "right") {
                 boxElement.style.width = value;
                 boxElement.style.height = elementStyle.height;
+
                 if (position === "left") {
                     boxElement.style.left = "-" + value;
-                }
-                else {
+                } else {
                     boxElement.style.right = "-" + value;
                 }
+
                 boxElement.style.top = "0";
             }
+
             element.appendChild(boxElement);
         }
+
         // Padding Box 생성
         for (let position in range.padding) {
-            const boxElement = document.createElement("span");
+            const boxElement: HTMLElement = document.createElement("span");
             boxElement.classList.add("range-box", "padding-box", "padding-" + position + "-box");
-            const value = range.padding[position];
+            
+            const value: string = range.padding[position];
             if (position === "top" || position === "bottom") {
                 boxElement.style.width = elementStyle.width;
                 boxElement.style.height = value;
-            }
-            else if (position === "right" || position === "left") {
+            } else if (position === "right" || position === "left") {
                 boxElement.style.top = range.padding.top;
                 boxElement.style.width = value;
-                boxElement.style.height = parseFloat(elementStyle.height) - (parseFloat(range.padding.top) + parseFloat(range.padding.bottom)) + "px";
+                boxElement.style.height = parseFloat(elementStyle.height) - (
+                    parseFloat(range.padding.top) + parseFloat(range.padding.bottom)
+                ) + "px";
             }
+
             element.appendChild(boxElement);
         }
     }
+
     /**
      * 컴포넌트 요소 범위 숨김
-     * @param {*} compId
-     * @param {*} e
+     * @param {*} compId 
+     * @param {*} e 
      */
-    hideComponentRange(compId, e) {
+    hideComponentRange(compId: string, e: MouseEvent): void {
         if (e) {
             e.stopPropagation();
         }
-        const element = this.getComponentElement(compId);
+
+        const element: HTMLElement = this.getComponentElement(compId);
         if (!element) {
             return;
         }
-        element.querySelectorAll(".comp > .range-box").forEach((box) => {
+
+        element.querySelectorAll(".comp > .range-box").forEach((box: HTMLElement) => {
             box.remove();
         });
     }
+
 }
