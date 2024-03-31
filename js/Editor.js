@@ -10,14 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import Component from "../js/comp/Component.js";
 export default class Editor {
     constructor(id) {
-        this.components = {};
-        this.id = id;
+        this._components = {};
+        this._id = id;
         this.init.bind(this)();
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.wrapper = document.getElementById(this.id);
-            this.sidebar = document.querySelector("#" + this.id + " + aside");
+            this._wrapper = document.getElementById(this._id);
+            this._sidebar = document.querySelector("#" + this._id + " + aside");
             this.initComponentHandler.bind(this)();
             yield this.initSidebar.bind(this)();
             this.initDragging.bind(this)();
@@ -25,7 +25,7 @@ export default class Editor {
         });
     }
     initDragging() {
-        this.dragging = {
+        this._dragging = {
             enabled: false,
             componentName: null,
             component: null,
@@ -35,45 +35,45 @@ export default class Editor {
     }
     initDragAndDropHandler() {
         // 사이드바 드래그 이벤트
-        this.sidebar.querySelectorAll(".comp-item").forEach((item) => {
+        this._sidebar.querySelectorAll(".comp-item").forEach((item) => {
             item.addEventListener("dragstart", (e) => {
                 const compName = item.dataset.name;
-                this.dragging.componentName = compName;
+                this._dragging.componentName = compName;
             });
         });
-        this.wrapper.addEventListener("dragenter", (e) => __awaiter(this, void 0, void 0, function* () {
+        this._wrapper.addEventListener("dragenter", (e) => __awaiter(this, void 0, void 0, function* () {
             e.preventDefault();
             e.stopPropagation();
-            if (e.target === this.wrapper) {
-                if (this.dragging.enabled) {
+            if (e.target === this._wrapper) {
+                if (this._dragging.enabled) {
                     return;
                 }
                 else {
-                    this.dragging.enabled = true;
-                    const compName = this.dragging.componentName;
+                    this._dragging.enabled = true;
+                    const compName = this._dragging.componentName;
                     const newComponent = yield this.addComponent(compName);
                     const draggingElement = newComponent.getElement();
                     draggingElement.classList.add("comp-dragging");
-                    this.dragging.component = newComponent;
-                    this.dragging.element = draggingElement;
+                    this._dragging.component = newComponent;
+                    this._dragging.element = draggingElement;
                 }
             }
         }));
-        this.wrapper.addEventListener("dragover", (e) => {
+        this._wrapper.addEventListener("dragover", (e) => {
             e.preventDefault();
             e.stopPropagation();
             const target = e.target;
-            if (!this.dragging.enabled || target.classList.contains("comp-dragging")) {
+            if (!this._dragging.enabled || target.classList.contains("comp-dragging")) {
                 return;
             }
-            const draggingElement = this.dragging.element;
-            let focusedElement = this.dragging.focusedElement;
+            const draggingElement = this._dragging.element;
+            let focusedElement = this._dragging.focusedElement;
             if (!draggingElement || focusedElement && focusedElement === target) {
                 return;
             }
             else {
                 focusedElement = target;
-                this.dragging.focusedElement = focusedElement;
+                this._dragging.focusedElement = focusedElement;
             }
             if (focusedElement.classList.contains("comp") || focusedElement.tagName === "DIV") {
                 document.querySelectorAll("div.focused").forEach((compElem) => {
@@ -105,7 +105,7 @@ export default class Editor {
                 }
             }
         });
-        this.wrapper.addEventListener("dragleave", (e) => {
+        this._wrapper.addEventListener("dragleave", (e) => {
             /*
             const draggingComponent = this.#dragging.component;
             this.removeComponent(draggingComponent.id);
@@ -114,14 +114,14 @@ export default class Editor {
              */
         });
         // 에디터 드롭 이벤트
-        this.wrapper.addEventListener("drop", (e) => {
-            if (!this.dragging.enabled) {
+        this._wrapper.addEventListener("drop", (e) => {
+            if (!this._dragging.enabled) {
                 return;
             }
             document.querySelectorAll("div.focused").forEach((comp) => {
                 comp.classList.remove("focused");
             });
-            const draggingElement = this.dragging.component.getElement();
+            const draggingElement = this._dragging.component.getElement();
             draggingElement.classList.remove("comp-dragging");
             setTimeout(() => {
                 draggingElement.scrollIntoView({
@@ -134,15 +134,15 @@ export default class Editor {
     }
     initComponentHandler() {
         // 컴포넌트 클릭 이벤트
-        this.wrapper.addEventListener("click", (e) => {
+        this._wrapper.addEventListener("click", (e) => {
             const target = e.target.closest(".comp");
             if (target) {
                 const compId = target.id;
                 this.selectComponent(compId, e);
             }
         });
-        this.wrapper.addEventListener("mouseover", (e) => {
-            if (this.dragging.enabled) {
+        this._wrapper.addEventListener("mouseover", (e) => {
+            if (this._dragging.enabled) {
                 return;
             }
             const target = e.target.closest(".comp");
@@ -151,8 +151,8 @@ export default class Editor {
                 this.showComponentRange(compId, e);
             }
         });
-        this.wrapper.addEventListener("mouseout", (e) => {
-            if (this.dragging.enabled) {
+        this._wrapper.addEventListener("mouseout", (e) => {
+            if (this._dragging.enabled) {
                 console.log("work");
                 return;
             }
@@ -178,11 +178,11 @@ export default class Editor {
             `;
             }
             template += '</ul>';
-            this.sidebar.innerHTML = template;
+            this._sidebar.innerHTML = template;
         });
     }
     getWrapper() {
-        return this.wrapper;
+        return this._wrapper;
     }
     addComponent(componentName, options, nextTo) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -192,22 +192,22 @@ export default class Editor {
                 const id = options ? options.id : null;
                 component = new cls(id, options);
                 yield component.init();
-                const temporaryElement = component.getTemporaryElement();
+                const templateElement = component.getTemplateElement();
                 if (nextTo) {
-                    nextTo.insertAdjacentElement("afterend", temporaryElement);
+                    nextTo.insertAdjacentElement("afterend", templateElement);
                 }
                 else {
-                    this.getWrapper().appendChild(temporaryElement);
+                    this.getWrapper().appendChild(templateElement);
                 }
                 if (component.isAvailable()) {
-                    this.components[component.id] = component;
+                    this._components[component.id] = component;
                 }
             }
             return component;
         });
     }
     getComponent(compId) {
-        return this.components[compId];
+        return this._components[compId];
     }
     getComponentElement(compId) {
         const component = this.getComponent(compId);
@@ -217,7 +217,7 @@ export default class Editor {
         const component = this.getComponent(compId);
         if (component) {
             component.getElement().remove();
-            delete this.components[compId];
+            delete this._components[compId];
             // TODO : 내부 컴포넌트 삭제 필요
         }
     }

@@ -11,7 +11,7 @@ import Editor from "../js/Editor.js";
 import Component from "../js/comp/Component.js";
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const editor = new Editor("editor");
-    const heading = yield editor.addComponent(Component.NAME_HEADING, {
+    const heading = yield editor.addComponent(Component.NAME.HEADING, {
         content: "Hello World!"
     });
     // await heading.setContent("Hello World! Again!");
@@ -21,10 +21,10 @@ window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     // heading.setStyle({
     //     "font-weight": "bold"
     // }, null, true);
-    const column2 = yield editor.addComponent(Component.NAME_COLUMN, {
+    const column2 = yield editor.addComponent(Component.NAME.COLUMN, {
         size: 2
     });
-    const column3 = yield editor.addComponent(Component.NAME_COLUMN, {
+    const column3 = yield editor.addComponent(Component.NAME.COLUMN, {
         size: 3
     });
     // column2.setStyle({

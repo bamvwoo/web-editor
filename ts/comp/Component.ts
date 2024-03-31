@@ -57,6 +57,14 @@ export default abstract class Component implements Localizable {
         this._style = props.style ? { ...props.style } : {};
     }
 
+    get id(): string {
+        return this._id;
+    }
+
+    set id(id: string) {
+        this._id = id;
+    }
+
     getRange(): Range {
         const element: HTMLElement = this.getElement();
         const elementStyle: CSSStyleDeclaration = getComputedStyle(element);

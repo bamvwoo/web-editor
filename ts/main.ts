@@ -4,7 +4,7 @@ import Component from "../js/comp/Component.js";
 window.onload = async () => {
     const editor :Editor = new Editor("editor");
 
-    const heading :Component = await editor.addComponent(Component.NAME_HEADING, {
+    const heading :Component = await editor.addComponent(Component.NAME.HEADING, {
         content: "Hello World!"
     });
 
@@ -18,11 +18,11 @@ window.onload = async () => {
     //     "font-weight": "bold"
     // }, null, true);
 
-    const column2 :Component = await editor.addComponent(Component.NAME_COLUMN, {
+    const column2 :Component = await editor.addComponent(Component.NAME.COLUMN, {
         size: 2
     });
     
-    const column3 :Component = await editor.addComponent(Component.NAME_COLUMN, {
+    const column3 :Component = await editor.addComponent(Component.NAME.COLUMN, {
         size: 3
     });
 

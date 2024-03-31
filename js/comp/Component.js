@@ -31,6 +31,12 @@ class Component {
         this._thumbnail = props.thumbnail;
         this._style = props.style ? Object.assign({}, props.style) : {};
     }
+    get id() {
+        return this._id;
+    }
+    set id(id) {
+        this._id = id;
+    }
     getRange() {
         const element = this.getElement();
         const elementStyle = getComputedStyle(element);

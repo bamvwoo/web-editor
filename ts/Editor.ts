@@ -1,27 +1,29 @@
 import Component from "../js/comp/Component.js";
 
+type Dragging = {
+    enabled: boolean;
+    componentName: string;
+    component: Component;
+    element: HTMLElement;
+    focusedElement: HTMLElement;
+};
+
 export default class Editor {
-    private id: string;
-    private wrapper: HTMLElement;
-    private sidebar: HTMLElement;
-    private dragging: { 
-        enabled: boolean, 
-        componentName: string, 
-        component: Component, 
-        element: HTMLElement, 
-        focusedElement: HTMLElement
-    };
-    private components: { [key: string]: Component } = {};
+    private _id: string;
+    private _wrapper: HTMLElement;
+    private _sidebar: HTMLElement;
+    private _dragging: Dragging;
+    private _components: { [key: string]: Component } = {};
 
     constructor(id: string) {
-        this.id = id;
+        this._id = id;
 
         this.init.bind(this)();
     }
 
     private async init(): Promise<void> {
-        this.wrapper = document.getElementById(this.id);
-        this.sidebar = document.querySelector("#" + this.id + " + aside");
+        this._wrapper = document.getElementById(this._id);
+        this._sidebar = document.querySelector("#" + this._id + " + aside");
 
         this.initComponentHandler.bind(this)();
         
@@ -32,7 +34,7 @@ export default class Editor {
     }
 
     private initDragging(): void {
-        this.dragging = {
+        this._dragging = {
             enabled: false,
             componentName: null,
             component: null,
@@ -43,52 +45,52 @@ export default class Editor {
 
     private initDragAndDropHandler(): void {
         // 사이드바 드래그 이벤트
-        this.sidebar.querySelectorAll(".comp-item").forEach((item: HTMLElement) => {
+        this._sidebar.querySelectorAll(".comp-item").forEach((item: HTMLElement) => {
             item.addEventListener("dragstart", (e) => {
                 const compName: string = item.dataset.name;
-                this.dragging.componentName = compName;
+                this._dragging.componentName = compName;
             });
         });
 
-        this.wrapper.addEventListener("dragenter", async (e: DragEvent) => {
+        this._wrapper.addEventListener("dragenter", async (e: DragEvent) => {
             e.preventDefault();
             e.stopPropagation();
 
-            if ((e.target as HTMLElement) === this.wrapper) {
-                if (this.dragging.enabled) {
+            if ((e.target as HTMLElement) === this._wrapper) {
+                if (this._dragging.enabled) {
                     return;
                 } else {
-                    this.dragging.enabled = true;
+                    this._dragging.enabled = true;
     
-                    const compName: string = this.dragging.componentName;
+                    const compName: string = this._dragging.componentName;
                     const newComponent: Component = await this.addComponent(compName);
                     const draggingElement: HTMLElement = newComponent.getElement();
 
                     draggingElement.classList.add("comp-dragging");
 
-                    this.dragging.component = newComponent;
-                    this.dragging.element = draggingElement;
+                    this._dragging.component = newComponent;
+                    this._dragging.element = draggingElement;
                 }
             }
         });
 
-        this.wrapper.addEventListener("dragover", (e: DragEvent) => {
+        this._wrapper.addEventListener("dragover", (e: DragEvent) => {
             e.preventDefault();
             e.stopPropagation();
 
             const target: HTMLElement = e.target as HTMLElement;
-            if (!this.dragging.enabled || target.classList.contains("comp-dragging")) {
+            if (!this._dragging.enabled || target.classList.contains("comp-dragging")) {
                 return;
             }
 
-            const draggingElement: HTMLElement = this.dragging.element;
-            let focusedElement: HTMLElement = this.dragging.focusedElement;
+            const draggingElement: HTMLElement = this._dragging.element;
+            let focusedElement: HTMLElement = this._dragging.focusedElement;
 
             if (!draggingElement || focusedElement && focusedElement === target) {
                 return;
             } else {
                 focusedElement = target;
-                this.dragging.focusedElement = focusedElement;
+                this._dragging.focusedElement = focusedElement;
             }
 
             if (focusedElement.classList.contains("comp") || focusedElement.tagName === "DIV") {
@@ -122,7 +124,7 @@ export default class Editor {
             }
         });
 
-        this.wrapper.addEventListener("dragleave", (e: DragEvent) => {
+        this._wrapper.addEventListener("dragleave", (e: DragEvent) => {
             /*
             const draggingComponent = this.#dragging.component;
             this.removeComponent(draggingComponent.id);
@@ -132,8 +134,8 @@ export default class Editor {
         });
 
         // 에디터 드롭 이벤트
-        this.wrapper.addEventListener("drop", (e: DragEvent) => {
-            if (!this.dragging.enabled) {
+        this._wrapper.addEventListener("drop", (e: DragEvent) => {
+            if (!this._dragging.enabled) {
                 return;
             }
 
@@ -141,7 +143,7 @@ export default class Editor {
                 comp.classList.remove("focused");
             });
 
-            const draggingElement: HTMLElement = this.dragging.component.getElement();
+            const draggingElement: HTMLElement = this._dragging.component.getElement();
             draggingElement.classList.remove("comp-dragging");
             setTimeout(() => {
                 draggingElement.scrollIntoView({
@@ -156,7 +158,7 @@ export default class Editor {
 
     private initComponentHandler(): void {
         // 컴포넌트 클릭 이벤트
-        this.wrapper.addEventListener("click", (e: MouseEvent) => {
+        this._wrapper.addEventListener("click", (e: MouseEvent) => {
             const target: HTMLElement = (e.target as HTMLElement).closest(".comp");
             if (target) {
                 const compId: string = target.id;
@@ -164,8 +166,8 @@ export default class Editor {
             }
         });
 
-        this.wrapper.addEventListener("mouseover", (e: MouseEvent) => {
-            if (this.dragging.enabled) {
+        this._wrapper.addEventListener("mouseover", (e: MouseEvent) => {
+            if (this._dragging.enabled) {
                 return;
             }
 
@@ -176,8 +178,8 @@ export default class Editor {
             }
         });
 
-        this.wrapper.addEventListener("mouseout", (e: MouseEvent) => {
-            if (this.dragging.enabled) {
+        this._wrapper.addEventListener("mouseout", (e: MouseEvent) => {
+            if (this._dragging.enabled) {
                 console.log("work");
                 
                 return;
@@ -209,11 +211,11 @@ export default class Editor {
 
         template += '</ul>';
 
-        this.sidebar.innerHTML = template;
+        this._sidebar.innerHTML = template;
     }
 
     private getWrapper(): HTMLElement {
-        return this.wrapper;
+        return this._wrapper;
     }
 
     async addComponent(componentName: string, options?: { id?: string, size?: number, content?: string }, nextTo?: HTMLElement): Component {
@@ -226,15 +228,15 @@ export default class Editor {
             component = new cls(id, options);
             await component.init();
 
-            const temporaryElement = component.getTemporaryElement();
+            const templateElement = component.getTemplateElement();
             if (nextTo) {
-                nextTo.insertAdjacentElement("afterend", temporaryElement);
+                nextTo.insertAdjacentElement("afterend", templateElement);
             } else {
-                this.getWrapper().appendChild(temporaryElement);
+                this.getWrapper().appendChild(templateElement);
             }
 
             if (component.isAvailable()) {
-                this.components[component.id] = component;
+                this._components[component.id] = component;
             }
         }
         
@@ -242,7 +244,7 @@ export default class Editor {
     }
 
     public getComponent(compId: string): Component {
-        return this.components[compId];
+        return this._components[compId];
     }
 
     public getComponentElement(compId: string): HTMLElement {
@@ -254,7 +256,7 @@ export default class Editor {
         const component: Component = this.getComponent(compId);
         if (component) {
             component.getElement().remove();
-            delete this.components[compId];
+            delete this._components[compId];
 
             // TODO : 내부 컴포넌트 삭제 필요
         }
