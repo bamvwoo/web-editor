@@ -166,8 +166,8 @@ export default class Editor {
     initSidebar() {
         return __awaiter(this, void 0, void 0, function* () {
             let template = '<ul class="comp-list">';
-            const compNames = Component.getComponentNames();
-            for (let compName of compNames) {
+            const compNames = Component.NAME;
+            for (let compName in compNames) {
                 const compCls = yield Component.getClass(compName);
                 const compProps = compCls.PROPS;
                 template += `

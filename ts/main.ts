@@ -8,7 +8,7 @@ window.onload = async () => {
         content: "Hello World!"
     });
 
-    await heading.setContent("Hello World! Again!");
+    // await heading.setContent("Hello World! Again!");
 
     // heading.setStyle({
     //     color: "red"

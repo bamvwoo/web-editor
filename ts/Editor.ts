@@ -194,14 +194,10 @@ export default class Editor {
     private async initSidebar(): Promise<void> {
         let template: string = '<ul class="comp-list">';
 
-        const compNames: string[] = Component.getComponentNames();
-        for (let compName of compNames) {
+        const compNames = Component.NAME;
+        for (let compName in compNames) {
             const compCls: typeof Component = await Component.getClass(compName);
-            const compProps: {
-                name: string,
-                thumbnail: string,
-                displayName: { default: string, ko?: string }
-            } = compCls.PROPS;
+            const compProps = compCls.PROPS;
 
             template += `
                 <li class="comp-item" data-name="${compProps.name}" draggable="true">

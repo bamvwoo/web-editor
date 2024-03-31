@@ -13,7 +13,7 @@ export default class Border extends ComponentStyle {
                     default: "테두리 두께",
                     en: "Border Width"
                 },
-                type: "size"
+                type: ComponentStyle.ATTRIBUTE_TYPE.SIZE
             },
             {
                 name: "color",
@@ -21,7 +21,7 @@ export default class Border extends ComponentStyle {
                     default: "테두리 색상",
                     en: "Border Color"
                 },
-                type: "color"
+                type: ComponentStyle.ATTRIBUTE_TYPE.COLOR
             },
             {
                 name: "style",
@@ -29,7 +29,7 @@ export default class Border extends ComponentStyle {
                     default: "테두리 스타일",
                     en: "Border Style"
                 },
-                type: "select",
+                type: ComponentStyle.ATTRIBUTE_TYPE.SELECT,
                 values: [
                     "none",
                     "solid",
@@ -46,6 +46,6 @@ export default class Border extends ComponentStyle {
     };
 
     constructor() {
-        super(ComponentStyle.NAME_BORDER, Border.PROPS);
+        super(ComponentStyle.NAME.BORDER, Border.PROPS);
     }
 }

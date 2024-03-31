@@ -6,14 +6,14 @@ export default class Background extends ComponentStyle {
             default: "배경",
             en: "Background"
         },
-        attributes : [
+        attributes: [
             {
                 name: "color",
                 displayName: {
                     default: "배경색",
                     en: "Background Color"
                 },
-                type: "color"
+                type: ComponentStyle.ATTRIBUTE_TYPE.COLOR
             },
             {
                 name: "image",
@@ -21,12 +21,12 @@ export default class Background extends ComponentStyle {
                     default: "배경이미지",
                     en: "Background Image"
                 },
-                type: "image"
+                type: ComponentStyle.ATTRIBUTE_TYPE.IMAGE
             }
         ]
     };
 
     constructor() {
-        super(ComponentStyle.NAME_BACKGROUND, Background.PROPS);
+        super(ComponentStyle.NAME.BACKGROUND, Background.PROPS);
     }
 }

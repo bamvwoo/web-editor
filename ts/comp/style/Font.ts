@@ -9,6 +9,6 @@ export default class Font extends ComponentStyle {
     };
 
     constructor() {
-        super(ComponentStyle.NAME_FONT, Font.PROPS);
+        super(ComponentStyle.NAME.FONT, Font.PROPS);
     }
 }

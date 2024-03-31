@@ -14,7 +14,7 @@ window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const heading = yield editor.addComponent(Component.NAME_HEADING, {
         content: "Hello World!"
     });
-    yield heading.setContent("Hello World! Again!");
+    // await heading.setContent("Hello World! Again!");
     // heading.setStyle({
     //     color: "red"
     // });
