@@ -1,4 +1,5 @@
-import { DisplayName, Localizable } from "../../common/interfaces.js";
+import { DisplayName, Localizable, Renderable } from "../../common/interfaces.js";
+import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
 
 enum Name {
     FONT = "Font",
@@ -8,31 +9,16 @@ enum Name {
 
 type Props = {
     displayName: DisplayName,
-    attributes?: Attribute[]
+    attributes?: ComponentStyleAttribute[]
 };
 
-interface Attribute {
-    name: string,
-    displayName: DisplayName,
-    type: AttributeType,
-    values?: string[]
-};
-
-enum AttributeType {
-    COLOR = "color",
-    IMAGE = "image",
-    SIZE = "size",
-    SELECT = "select"
-};
-
-export default abstract class ComponentStyle implements Localizable {
+export default abstract class ComponentStyle implements Localizable, Renderable {
     static readonly PROPS = {};
     static readonly NAME = Name;
-    static readonly ATTRIBUTE_TYPE = AttributeType;
 
     private _name: Name;
     private _displayName: DisplayName;
-    private _attributes: Attribute[];
+    private _attributes: ComponentStyleAttribute[];
 
     constructor(name: Name, props: Props) {
         this._name = name;
@@ -40,10 +26,18 @@ export default abstract class ComponentStyle implements Localizable {
         this._attributes = props.attributes ? props.attributes : [];
     }
 
+    get name(): Name {
+        return this._name;
+    }
+
+    get attributes(): ComponentStyleAttribute[] {
+        return this._attributes;
+    }
+
     static async newInstance<T extends ComponentStyle>(styleName: Name | string): Promise<T> {
         try {
             const module = await import("./" + styleName + ".js");
-            return module.default();
+            return new module.default();
         } catch (e) {
             return null;
         }
@@ -51,5 +45,19 @@ export default abstract class ComponentStyle implements Localizable {
 
     getDisplayName(locale?: string): string {
         return this._displayName[locale || "default"];
+    }
+
+    getTemplate(): string {
+        let template = "";
+        for (let attribute of this._attributes) {
+            template += `
+                <div class="attribute">
+                    <label>${attribute.getDisplayName()}</label>
+                    ${attribute.getTemplate()}
+                </div>
+            `;
+        }
+
+        return template;
     }
 }

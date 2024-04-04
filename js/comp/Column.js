@@ -11,6 +11,14 @@ class Column extends Component {
     set size(size) {
         this._size = size;
     }
+    getTemplate() {
+        let template = "";
+        for (let i = 0; i < this._size; i++) {
+            template += `<div></div>`;
+        }
+        ;
+        return template;
+    }
 }
 Column.PROPS = {
     name: Component.NAME.COLUMN,
@@ -23,7 +31,8 @@ Column.PROPS = {
     style: {
         "selector": null,
         "itemNames": [
-            ComponentStyle.NAME.BACKGROUND
+            ComponentStyle.NAME.BACKGROUND,
+            ComponentStyle.NAME.BORDER
         ]
     }
 };

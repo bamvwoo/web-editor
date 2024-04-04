@@ -112,19 +112,11 @@ class Component {
             }
         });
     }
-    getTemplate() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const module = yield import("../template/" + this._name + ".js");
-                return module.default(this);
-            }
-            catch (e) {
-                return null;
-            }
-        });
-    }
     getDisplayName(locale) {
         return this._displayName[locale || "default"];
+    }
+    getStyleItems() {
+        return this._style.items;
     }
 }
 _Component_instances = new WeakSet(), _Component_initStyle = function _Component_initStyle() {

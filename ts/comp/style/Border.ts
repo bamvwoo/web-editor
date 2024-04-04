@@ -1,4 +1,5 @@
 import ComponentStyle from "./ComponentStyle.js";
+import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
 
 export default class Border extends ComponentStyle {
     static PROPS = {
@@ -7,29 +8,27 @@ export default class Border extends ComponentStyle {
             en: "Border"
         },
         attributes: [
-            {
+            new ComponentStyleAttribute(ComponentStyleAttribute.TYPE.SIZE, {
                 name: "width",
                 displayName: {
                     default: "테두리 두께",
                     en: "Border Width"
                 },
-                type: ComponentStyle.ATTRIBUTE_TYPE.SIZE
-            },
-            {
+                units: ComponentStyleAttribute.UNIT.PIXEL
+            }),
+            new ComponentStyleAttribute(ComponentStyleAttribute.TYPE.COLOR, {
                 name: "color",
                 displayName: {
                     default: "테두리 색상",
                     en: "Border Color"
-                },
-                type: ComponentStyle.ATTRIBUTE_TYPE.COLOR
-            },
-            {
+                }
+            }),
+            new ComponentStyleAttribute(ComponentStyleAttribute.TYPE.SELECT, {
                 name: "style",
                 displayName: {
                     default: "테두리 스타일",
                     en: "Border Style"
                 },
-                type: ComponentStyle.ATTRIBUTE_TYPE.SELECT,
                 values: [
                     "none",
                     "solid",
@@ -41,7 +40,7 @@ export default class Border extends ComponentStyle {
                     "inset",
                     "outset"
                 ]
-            }
+            })
         ]
     };
 

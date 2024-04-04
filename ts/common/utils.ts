@@ -1,8 +1,8 @@
-const createUniqueId = () :string => {
+const createUniqueId = (): string => {
     return Number(Math.random()).toString(32).substring(2);
 }
 
-const throttle = (callback :Function, delay :number) :Function => {
+const throttle = (callback: Function, delay: number) :Function => {
     let timer :number;
     return function() {
         if (!timer) {

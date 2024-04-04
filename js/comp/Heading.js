@@ -32,6 +32,11 @@ class Heading extends Component {
             yield this.render();
         });
     }
+    getTemplate() {
+        return `
+            <h${this._size}>${this._content}</h${this._size}>
+        `;
+    }
 }
 Heading.PROPS = {
     name: Component.NAME.HEADING,

@@ -1,6 +1,6 @@
 import { createUniqueId } from "../common/utils.js";
 import ComponentStyle from "./style/ComponentStyle.js";
-import { DisplayName, Localizable } from "../common/interfaces.js";
+import { DisplayName, Localizable, Renderable } from "../common/interfaces.js";
 
 enum Name {
     HEADING = "Heading",
@@ -36,7 +36,7 @@ type Range = {
     }
 };
 
-export default abstract class Component implements Localizable {
+export default abstract class Component implements Localizable, Renderable {
     static readonly NAME = Name;
 
     private _id: string;
@@ -165,16 +165,13 @@ export default abstract class Component implements Localizable {
         }
     }
 
-    async getTemplate(): Promise<string> {
-        try {
-            const module = await import("../template/" + this._name + ".js");
-            return module.default(this);
-        } catch (e) {
-            return null;
-        }
-    }
+    abstract getTemplate(): string;
 
     getDisplayName(locale?: string): string {
         return this._displayName[locale || "default"];
+    }
+
+    getStyleItems(): ComponentStyle[] {
+        return this._style.items;
     }
 }

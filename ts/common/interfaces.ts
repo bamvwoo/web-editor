@@ -7,3 +7,7 @@ export interface DisplayName {
 export interface Localizable {
     getDisplayName(locale?: string): string;
 };
+
+export interface Renderable {
+    getTemplate(): string;
+};

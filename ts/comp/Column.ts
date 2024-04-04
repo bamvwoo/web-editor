@@ -17,7 +17,8 @@ export default class Column extends Component {
         style: {
             "selector": null,
             "itemNames": [
-                ComponentStyle.NAME.BACKGROUND
+                ComponentStyle.NAME.BACKGROUND,
+                ComponentStyle.NAME.BORDER
             ]
         }
     };
@@ -36,5 +37,14 @@ export default class Column extends Component {
 
     set size(size: number) {
         this._size = size;
+    }
+
+    getTemplate(): string {
+        let template = "";
+        for (let i = 0; i < this._size; i++) {
+            template += `<div></div>`;
+        };
+
+        return template;
     }
 }

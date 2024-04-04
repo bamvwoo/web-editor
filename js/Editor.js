@@ -292,6 +292,7 @@ export default class Editor {
         toolBoxElement.innerHTML = toolBoxTemplate;
         toolBoxElement.querySelector(".btn-edit-comp").addEventListener("click", (e) => {
             const compId = e.target.parentNode.dataset.compId;
+            this.openStyleEditingPopup(compId);
         });
         toolBoxElement.querySelector(".btn-move-comp").addEventListener("click", (e) => {
             const compId = e.target.parentNode.dataset.compId;
@@ -397,5 +398,42 @@ export default class Editor {
         element.querySelectorAll(".comp > .range-box").forEach((box) => {
             box.remove();
         });
+    }
+    openStyleEditingPopup(compId, callback) {
+        const comp = this.getComponent(compId);
+        if (!comp) {
+            return;
+        }
+        let popupElem = document.getElementById("stylePopup") || document.createElement("div");
+        let popupTemplate = `
+            <h3>스타일 편집</h3>
+            <div>
+        `;
+        const styleItems = comp.getStyleItems();
+        for (let styleItem of styleItems) {
+            popupTemplate += `
+                <div>${styleItem.getTemplate()}</div>
+            `;
+        }
+        popupTemplate += `
+            <button class="btn-save-style">저장</button>
+            <button class="btn-cancel-edit-style">취소</button>
+        `;
+        popupTemplate += `</div>`;
+        popupElem.id = "stylePopup";
+        popupElem.innerHTML = popupTemplate;
+        popupElem.querySelector(".btn-save-style").addEventListener("click", (e) => {
+            comp.applyStyle();
+        });
+        popupElem.querySelector(".btn-cancel-edit-style").addEventListener("click", (e) => {
+            this.closeStyleEditingPopup();
+        });
+        this._wrapper.parentNode.appendChild(popupElem);
+    }
+    closeStyleEditingPopup() {
+        const popupElem = document.getElementById("stylePopup");
+        if (popupElem) {
+            popupElem.remove();
+        }
     }
 }

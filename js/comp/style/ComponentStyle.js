@@ -14,26 +14,23 @@ var Name;
     Name["BORDER"] = "Border";
 })(Name || (Name = {}));
 ;
-;
-var AttributeType;
-(function (AttributeType) {
-    AttributeType["COLOR"] = "color";
-    AttributeType["IMAGE"] = "image";
-    AttributeType["SIZE"] = "size";
-    AttributeType["SELECT"] = "select";
-})(AttributeType || (AttributeType = {}));
-;
 class ComponentStyle {
     constructor(name, props) {
         this._name = name;
         this._displayName = props.displayName;
         this._attributes = props.attributes ? props.attributes : [];
     }
+    get name() {
+        return this._name;
+    }
+    get attributes() {
+        return this._attributes;
+    }
     static newInstance(styleName) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const module = yield import("./" + styleName + ".js");
-                return module.default();
+                return new module.default();
             }
             catch (e) {
                 return null;
@@ -43,8 +40,19 @@ class ComponentStyle {
     getDisplayName(locale) {
         return this._displayName[locale || "default"];
     }
+    getTemplate() {
+        let template = "";
+        for (let attribute of this._attributes) {
+            template += `
+                <div class="attribute">
+                    <label>${attribute.getDisplayName()}</label>
+                    ${attribute.getTemplate()}
+                </div>
+            `;
+        }
+        return template;
+    }
 }
 ComponentStyle.PROPS = {};
 ComponentStyle.NAME = Name;
-ComponentStyle.ATTRIBUTE_TYPE = AttributeType;
 export default ComponentStyle;

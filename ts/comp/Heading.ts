@@ -53,4 +53,10 @@ export default class Heading extends Component {
         this._content = content;
         await this.render();
     }
+
+    getTemplate(): string {
+        return `
+            <h${this._size}>${this._content}</h${this._size}>
+        `;
+    }
 }

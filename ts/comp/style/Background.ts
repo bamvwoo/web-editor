@@ -1,4 +1,5 @@
 import ComponentStyle from "./ComponentStyle.js";
+import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
 
 export default class Background extends ComponentStyle {
     static PROPS = {
@@ -7,22 +8,20 @@ export default class Background extends ComponentStyle {
             en: "Background"
         },
         attributes: [
-            {
+            new ComponentStyleAttribute(ComponentStyleAttribute.TYPE.COLOR, {
                 name: "color",
                 displayName: {
                     default: "배경색",
                     en: "Background Color"
-                },
-                type: ComponentStyle.ATTRIBUTE_TYPE.COLOR
-            },
-            {
+                }
+            }),
+            new ComponentStyleAttribute(ComponentStyleAttribute.TYPE.IMAGE, {
                 name: "image",
                 displayName: {
                     default: "배경이미지",
                     en: "Background Image"
-                },
-                type: ComponentStyle.ATTRIBUTE_TYPE.IMAGE
-            }
+                }
+            })
         ]
     };
 

@@ -89,6 +89,7 @@ a {
 #wrapper > main {
 	display: flex;
 	height: calc(100vh - 50px);
+	position: relative;
 }
 
 #wrapper > main > * {

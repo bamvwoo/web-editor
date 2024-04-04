@@ -1,3 +1,5 @@
+import ComponentStyleAttribute from "./comp/style/attribute/ComponentStyleAttribute";
+import ComponentStyle from "./comp/style/ComponentStyle";
 import Component from "../js/comp/Component.js";
 
 type Dragging = {
@@ -343,6 +345,7 @@ export default class Editor {
 
         toolBoxElement.querySelector(".btn-edit-comp").addEventListener("click", (e) => {
             const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
+            this.openStyleEditingPopup(compId);
         });
         toolBoxElement.querySelector(".btn-move-comp").addEventListener("click", (e) => {
             const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
@@ -469,6 +472,53 @@ export default class Editor {
         element.querySelectorAll(".comp > .range-box").forEach((box: HTMLElement) => {
             box.remove();
         });
+    }
+
+
+    openStyleEditingPopup(compId: string, callback?: Function): void {
+        const comp: Component = this.getComponent(compId);
+        if (!comp) {
+            return;
+        }
+        
+        let popupElem: HTMLElement = document.getElementById("stylePopup") || document.createElement("div");
+        let popupTemplate: string = `
+            <h3>스타일 편집</h3>
+            <div>
+        `;
+
+        const styleItems: ComponentStyle[] = comp.getStyleItems();
+        for (let styleItem of styleItems) {
+            popupTemplate += `
+                <div>${styleItem.getTemplate()}</div>
+            `;
+        }
+
+        popupTemplate += `
+            <button class="btn-save-style">저장</button>
+            <button class="btn-cancel-edit-style">취소</button>
+        `
+        popupTemplate += `</div>`;
+
+        popupElem.id = "stylePopup";
+        popupElem.innerHTML = popupTemplate;
+
+        popupElem.querySelector(".btn-save-style").addEventListener("click", (e) => {
+            comp.applyStyle();
+        });
+
+        popupElem.querySelector(".btn-cancel-edit-style").addEventListener("click", (e) => {
+            this.closeStyleEditingPopup();
+        });
+
+        this._wrapper.parentNode.appendChild(popupElem);
+    }
+
+    closeStyleEditingPopup() {
+        const popupElem: HTMLElement = document.getElementById("stylePopup");
+        if (popupElem) {
+            popupElem.remove();
+        }
     }
 
 }
