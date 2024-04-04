@@ -198,7 +198,7 @@ export default class Editor {
 
         const compNames = Component.NAME;
         for (let compName in compNames) {
-            const compCls: typeof Component = await Component.getClass(compName);
+            const compCls: typeof Component = await Component.getClass(compNames[compName]);
             const compProps = compCls.PROPS;
 
             template += `

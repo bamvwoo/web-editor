@@ -168,7 +168,7 @@ export default class Editor {
             let template = '<ul class="comp-list">';
             const compNames = Component.NAME;
             for (let compName in compNames) {
-                const compCls = yield Component.getClass(compName);
+                const compCls = yield Component.getClass(compNames[compName]);
                 const compProps = compCls.PROPS;
                 template += `
                 <li class="comp-item" data-name="${compProps.name}" draggable="true">
