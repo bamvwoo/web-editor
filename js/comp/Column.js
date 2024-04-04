@@ -5,6 +5,12 @@ class Column extends Component {
         super(id, Column.PROPS);
         this._size = options ? (options.size || 1) : 1;
     }
+    get size() {
+        return this._size;
+    }
+    set size(size) {
+        this._size = size;
+    }
 }
 Column.PROPS = {
     name: Component.NAME.COLUMN,

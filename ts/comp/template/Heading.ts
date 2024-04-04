@@ -1,5 +1,6 @@
-export default function(instance) {
-    console.log(instance);
+import Heading from "../Heading";
+
+export default function(instance: Heading): string {
     return `
         <h${instance.size}>${instance.content}</h${instance.size}>
     `;

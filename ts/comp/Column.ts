@@ -29,4 +29,12 @@ export default class Column extends Component {
 
         this._size = options ? (options.size || 1) : 1;
     }
+
+    get size(): number {
+        return this._size;
+    }
+
+    set size(size: number) {
+        this._size = size;
+    }
 }
