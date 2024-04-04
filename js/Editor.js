@@ -68,7 +68,7 @@ export default class Editor {
             }
             const draggingElement = this._dragging.element;
             let focusedElement = this._dragging.focusedElement;
-            if (!draggingElement || focusedElement && focusedElement === target) {
+            if (!draggingElement || (focusedElement && focusedElement === target)) {
                 return;
             }
             else {
