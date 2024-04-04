@@ -1,4 +1,4 @@
-import { DisplayName, Localizable, Renderable } from "../../../common/interfaces";
+import { DisplayName, Localizable, Renderable } from "../common/interfaces";
 
 enum Type {
     COLOR = "color",

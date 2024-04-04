@@ -1,5 +1,5 @@
 import ComponentStyle from "./ComponentStyle.js";
-import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
+import ComponentStyleAttribute from "./ComponentStyleAttribute.js";
 
 export default class Border extends ComponentStyle {
     static PROPS = {

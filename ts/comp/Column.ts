@@ -1,5 +1,5 @@
 import Component from "./Component.js";
-import ComponentStyle from "./style/ComponentStyle.js";
+import ComponentStyle from "../comp-style/ComponentStyle.js";
 
 type Options = {
     size: number

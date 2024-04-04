@@ -1,5 +1,5 @@
-import { DisplayName, Localizable, Renderable } from "../../common/interfaces.js";
-import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
+import { DisplayName, Localizable, Renderable } from "../common/interfaces.js";
+import ComponentStyleAttribute from "./ComponentStyleAttribute.js";
 
 enum Name {
     FONT = "Font",

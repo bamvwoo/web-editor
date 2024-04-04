@@ -1,5 +1,5 @@
 import { createUniqueId } from "../common/utils.js";
-import ComponentStyle from "./style/ComponentStyle.js";
+import ComponentStyle from "../comp-style/ComponentStyle.js";
 import { DisplayName, Localizable, Renderable } from "../common/interfaces.js";
 
 enum Name {

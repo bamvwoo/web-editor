@@ -1,5 +1,5 @@
 import ComponentStyle from "./ComponentStyle.js";
-import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
+import ComponentStyleAttribute from "./ComponentStyleAttribute.js";
 class Border extends ComponentStyle {
     constructor() {
         super(ComponentStyle.NAME.BORDER, Border.PROPS);

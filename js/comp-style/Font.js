@@ -1,5 +1,5 @@
 import ComponentStyle from "./ComponentStyle.js";
-import ComponentStyleAttribute from "./attribute/ComponentStyleAttribute.js";
+import ComponentStyleAttribute from "./ComponentStyleAttribute.js";
 class Font extends ComponentStyle {
     constructor() {
         super(ComponentStyle.NAME.FONT, Font.PROPS);

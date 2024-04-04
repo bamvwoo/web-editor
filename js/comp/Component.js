@@ -14,7 +14,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _Component_instances, _Component_initStyle, _Component_getStyle;
 import { createUniqueId } from "../common/utils.js";
-import ComponentStyle from "./style/ComponentStyle.js";
+import ComponentStyle from "../comp-style/ComponentStyle.js";
 var Name;
 (function (Name) {
     Name["HEADING"] = "Heading";

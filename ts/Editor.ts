@@ -1,5 +1,5 @@
-import ComponentStyleAttribute from "./comp/style/attribute/ComponentStyleAttribute";
-import ComponentStyle from "./comp/style/ComponentStyle";
+import ComponentStyleAttribute from "./comp-style/ComponentStyleAttribute";
+import ComponentStyle from "./comp-style/ComponentStyle";
 import Component from "../js/comp/Component.js";
 
 type Dragging = {
