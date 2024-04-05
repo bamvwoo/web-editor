@@ -47,6 +47,18 @@ export default class ComponentStyleAttribute implements Localizable, Renderable 
         this._units = props.units;
     }
 
+    get name(): string {
+        return this._name;
+    }
+
+    get value(): string {
+        return this._value;
+    }
+
+    set value(value: string) {
+        this._value = value;
+    }
+
     getDisplayName(locale?: string): string {
         return this._displayName[locale || "default"];
     }

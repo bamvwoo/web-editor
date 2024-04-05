@@ -48,16 +48,32 @@ export default abstract class ComponentStyle implements Localizable, Renderable 
     }
 
     getTemplate(): string {
-        let template = "";
+        let template = `<ul class="style-attribute-list" data-name="${this._name}">`;
         for (let attribute of this._attributes) {
             template += `
-                <div class="attribute">
+                <li class="style-attribute-item" data-name="${this._name.toLowerCase()}-${attribute.name}">
                     <label>${attribute.getDisplayName()}</label>
                     ${attribute.getTemplate()}
-                </div>
+                </li>
             `;
         }
+        template += "</ul>";
 
         return template;
+    }
+
+    getStyleAttributes(): ComponentStyleAttribute[] {
+        return this._attributes;
+    }
+
+    getStyleAttribute(name: string): ComponentStyleAttribute {
+        return this._attributes.find(attribute => attribute.name === name);
+    }
+
+    setStyleAttribute(name: string, value: string): void {
+        const attribute = this.getStyleAttribute(name);
+        if (attribute) {
+            attribute.value = value;
+        }
     }
 }

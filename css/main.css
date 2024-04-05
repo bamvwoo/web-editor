@@ -96,3 +96,49 @@ a {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
+
+#modal {
+	display: flex;
+	flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #444;
+    border-radius: 10px;
+	z-index: 1;
+	background-color: white;
+
+	& > .modal-title-area {
+		padding: 10px;
+		border-bottom: 1px solid #444;
+	}
+
+	& > .modal-content-area {
+		padding: 10px;
+	}
+
+	& > .modal-btn-area {
+		display: flex;
+		justify-content: flex-end;
+		padding: 10px;
+
+		& > button {
+			width: 50px;
+			height: 30px;
+			cursor: pointer;
+		}
+
+		& > button + button {
+			margin-left: 10px;
+		}
+	}
+}
+
+#modalBackground {
+	position: fixed;
+	width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, .3);
+    top: 0;
+}

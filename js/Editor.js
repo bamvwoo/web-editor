@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import Component from "../js/comp/Component.js";
+import { openModal } from "./common/utils.js";
 export default class Editor {
     constructor(id) {
         this._components = {};
@@ -292,7 +293,7 @@ export default class Editor {
         toolBoxElement.innerHTML = toolBoxTemplate;
         toolBoxElement.querySelector(".btn-edit-comp").addEventListener("click", (e) => {
             const compId = e.target.parentNode.dataset.compId;
-            this.openStyleEditingPopup(compId);
+            this.openStyleEditingModal(compId);
         });
         toolBoxElement.querySelector(".btn-move-comp").addEventListener("click", (e) => {
             const compId = e.target.parentNode.dataset.compId;
@@ -399,41 +400,39 @@ export default class Editor {
             box.remove();
         });
     }
-    openStyleEditingPopup(compId, callback) {
+    /**
+     *
+     * @param compId
+     * @param callback
+     * @returns
+     */
+    openStyleEditingModal(compId, callback) {
         const comp = this.getComponent(compId);
         if (!comp) {
             return;
         }
-        let popupElem = document.getElementById("stylePopup") || document.createElement("div");
-        let popupTemplate = `
-            <h3>스타일 편집</h3>
-            <div>
-        `;
+        let modalTemplate = "";
         const styleItems = comp.getStyleItems();
         for (let styleItem of styleItems) {
-            popupTemplate += `
-                <div>${styleItem.getTemplate()}</div>
-            `;
+            modalTemplate += styleItem.getTemplate();
         }
-        popupTemplate += `
-            <button class="btn-save-style">저장</button>
-            <button class="btn-cancel-edit-style">취소</button>
-        `;
-        popupTemplate += `</div>`;
-        popupElem.id = "stylePopup";
-        popupElem.innerHTML = popupTemplate;
-        popupElem.querySelector(".btn-save-style").addEventListener("click", (e) => {
-            comp.applyStyle();
-        });
-        popupElem.querySelector(".btn-cancel-edit-style").addEventListener("click", (e) => {
-            this.closeStyleEditingPopup();
-        });
-        this._wrapper.parentNode.appendChild(popupElem);
-    }
-    closeStyleEditingPopup() {
-        const popupElem = document.getElementById("stylePopup");
-        if (popupElem) {
-            popupElem.remove();
-        }
+        openModal(modalTemplate, {
+            title: "스타일 편집",
+            confirmText: "적용"
+        }, (modal) => __awaiter(this, void 0, void 0, function* () {
+            let styleItemElems = modal.querySelectorAll(".style-attribute-list");
+            for (let styleItemElem of styleItemElems) {
+                const styleItemName = styleItemElem.dataset.name;
+                const styleItem = comp.getStyleItem(styleItemName);
+                if (styleItem) {
+                    const styleAttrElems = styleItemElem.querySelectorAll(".style-attribute-item");
+                    for (let styleAttrElem of styleAttrElems) {
+                        const styleAttrName = styleAttrElem.dataset.name;
+                        styleItem.setStyleAttribute(styleAttrName, ""); // TODO : 입력된 값을 가져오는 메서드 구현 필요
+                    }
+                }
+            }
+            yield comp.render();
+        }));
     }
 }

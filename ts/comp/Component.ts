@@ -119,6 +119,8 @@ export default abstract class Component implements Localizable, Renderable {
             throw new Error("Component is not available");
         }
 
+        // TODO : 스타일 적용
+
         const element: HTMLElement = this.getElement();
         element.innerHTML = await this.getTemplate();
     }
@@ -152,10 +154,6 @@ export default abstract class Component implements Localizable, Renderable {
         }
     }
 
-    #getStyle(): Style {
-        return this._style;
-    }
-
     static async getClass(componentName: Name | string): Promise<typeof Component> {
         try {
             const module = await import("./" + componentName + ".js");
@@ -173,5 +171,9 @@ export default abstract class Component implements Localizable, Renderable {
 
     getStyleItems(): ComponentStyle[] {
         return this._style.items;
+    }
+
+    getStyleItem(name: string): ComponentStyle {
+        return this._style.items.find(item => item.name === name);
     }
 }

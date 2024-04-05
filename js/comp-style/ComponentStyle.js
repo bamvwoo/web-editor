@@ -41,16 +41,29 @@ class ComponentStyle {
         return this._displayName[locale || "default"];
     }
     getTemplate() {
-        let template = "";
+        let template = `<ul class="style-attribute-list" data-name="${this._name}">`;
         for (let attribute of this._attributes) {
             template += `
-                <div class="attribute">
+                <li class="style-attribute-item" data-name="${this._name.toLowerCase()}-${attribute.name}">
                     <label>${attribute.getDisplayName()}</label>
                     ${attribute.getTemplate()}
-                </div>
+                </li>
             `;
         }
+        template += "</ul>";
         return template;
+    }
+    getStyleAttributes() {
+        return this._attributes;
+    }
+    getStyleAttribute(name) {
+        return this._attributes.find(attribute => attribute.name === name);
+    }
+    setStyleAttribute(name, value) {
+        const attribute = this.getStyleAttribute(name);
+        if (attribute) {
+            attribute.value = value;
+        }
     }
 }
 ComponentStyle.PROPS = {};

@@ -12,7 +12,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Component_instances, _Component_initStyle, _Component_getStyle;
+var _Component_instances, _Component_initStyle;
 import { createUniqueId } from "../common/utils.js";
 import ComponentStyle from "../comp-style/ComponentStyle.js";
 var Name;
@@ -74,6 +74,7 @@ class Component {
             if (!this.isAvailable()) {
                 throw new Error("Component is not available");
             }
+            // TODO : 스타일 적용
             const element = this.getElement();
             element.innerHTML = yield this.getTemplate();
         });
@@ -118,6 +119,9 @@ class Component {
     getStyleItems() {
         return this._style.items;
     }
+    getStyleItem(name) {
+        return this._style.items.find(item => item.name === name);
+    }
 }
 _Component_instances = new WeakSet(), _Component_initStyle = function _Component_initStyle() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -130,8 +134,6 @@ _Component_instances = new WeakSet(), _Component_initStyle = function _Component
             this._style.items = styleInstances;
         }
     });
-}, _Component_getStyle = function _Component_getStyle() {
-    return this._style;
 };
 Component.NAME = Name;
 export default Component;

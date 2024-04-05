@@ -1,6 +1,6 @@
-import ComponentStyleAttribute from "./comp-style/ComponentStyleAttribute";
 import ComponentStyle from "./comp-style/ComponentStyle";
 import Component from "../js/comp/Component.js";
+import { openModal } from "./common/utils.js";
 
 type Dragging = {
     enabled: boolean;
@@ -345,7 +345,7 @@ export default class Editor {
 
         toolBoxElement.querySelector(".btn-edit-comp").addEventListener("click", (e) => {
             const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
-            this.openStyleEditingPopup(compId);
+            this.openStyleEditingModal(compId);
         });
         toolBoxElement.querySelector(".btn-move-comp").addEventListener("click", (e) => {
             const compId: string = ((e.target as Node).parentNode as HTMLElement).dataset.compId;
@@ -474,51 +474,43 @@ export default class Editor {
         });
     }
 
-
-    openStyleEditingPopup(compId: string, callback?: Function): void {
+    /**
+     * 
+     * @param compId 
+     * @param callback 
+     * @returns 
+     */
+    openStyleEditingModal(compId: string, callback?: Function): void {
         const comp: Component = this.getComponent(compId);
         if (!comp) {
             return;
         }
         
-        let popupElem: HTMLElement = document.getElementById("stylePopup") || document.createElement("div");
-        let popupTemplate: string = `
-            <h3>스타일 편집</h3>
-            <div>
-        `;
-
+        let modalTemplate: string = "";
         const styleItems: ComponentStyle[] = comp.getStyleItems();
         for (let styleItem of styleItems) {
-            popupTemplate += `
-                <div>${styleItem.getTemplate()}</div>
-            `;
+            modalTemplate += styleItem.getTemplate();
         }
 
-        popupTemplate += `
-            <button class="btn-save-style">저장</button>
-            <button class="btn-cancel-edit-style">취소</button>
-        `
-        popupTemplate += `</div>`;
+        openModal(modalTemplate, {
+            title: "스타일 편집",
+            confirmText: "적용"
+        }, async (modal) => {
+            let styleItemElems: NodeListOf<Element> = modal.querySelectorAll(".style-attribute-list");
+            for (let styleItemElem of styleItemElems) {
+                const styleItemName: string = (styleItemElem as HTMLElement).dataset.name;
+                const styleItem: ComponentStyle = comp.getStyleItem(styleItemName);
 
-        popupElem.id = "stylePopup";
-        popupElem.innerHTML = popupTemplate;
+                if (styleItem) {
+                    const styleAttrElems: NodeListOf<Element> = styleItemElem.querySelectorAll(".style-attribute-item");
+                    for (let styleAttrElem of styleAttrElems) {
+                        const styleAttrName: string = (styleAttrElem as HTMLElement).dataset.name;
+                        styleItem.setStyleAttribute(styleAttrName, ""); // TODO : 입력된 값을 가져오는 메서드 구현 필요
+                    }
+                }
+            }
 
-        popupElem.querySelector(".btn-save-style").addEventListener("click", (e) => {
-            comp.applyStyle();
+            await comp.render();
         });
-
-        popupElem.querySelector(".btn-cancel-edit-style").addEventListener("click", (e) => {
-            this.closeStyleEditingPopup();
-        });
-
-        this._wrapper.parentNode.appendChild(popupElem);
     }
-
-    closeStyleEditingPopup() {
-        const popupElem: HTMLElement = document.getElementById("stylePopup");
-        if (popupElem) {
-            popupElem.remove();
-        }
-    }
-
 }

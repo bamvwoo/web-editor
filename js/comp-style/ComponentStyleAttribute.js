@@ -27,6 +27,15 @@ class ComponentStyleAttribute {
         this._values = props.values;
         this._units = props.units;
     }
+    get name() {
+        return this._name;
+    }
+    get value() {
+        return this._value;
+    }
+    set value(value) {
+        this._value = value;
+    }
     getDisplayName(locale) {
         return this._displayName[locale || "default"];
     }
