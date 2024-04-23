@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var Name;
 (function (Name) {
-    Name["FONT"] = "Font";
-    Name["BACKGROUND"] = "Background";
-    Name["BORDER"] = "Border";
+    Name["FONT"] = "font";
+    Name["BACKGROUND"] = "background";
+    Name["BORDER"] = "border";
 })(Name || (Name = {}));
 ;
 class ComponentStyle {
@@ -43,7 +43,7 @@ class ComponentStyle {
     getTemplate() {
         let template = `<ul class="style-attribute-list" data-name="${this._name}">`;
         for (let attribute of this._attributes) {
-            template += `
+            const attributeId = template += `
                 <li class="style-attribute-item" data-name="${this._name.toLowerCase()}-${attribute.name}">
                     <label>${attribute.getDisplayName()}</label>
                     ${attribute.getTemplate()}

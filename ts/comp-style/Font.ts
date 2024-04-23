@@ -15,6 +15,13 @@ export default class Font extends ComponentStyle {
                     en: "Font Size"
                 },
                 units: [ComponentStyleAttribute.UNIT.PIXEL, ComponentStyleAttribute.UNIT.REM, ComponentStyleAttribute.UNIT.EM]
+            }),
+            new ComponentStyleAttribute(ComponentStyleAttribute.TYPE.SIZE, {
+                name: "weight",
+                displayName: {
+                    default: "글꼴 굵기",
+                    en: "Font Weight"
+                }
             })
         ]
     };

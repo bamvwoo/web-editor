@@ -2,9 +2,9 @@ import { DisplayName, Localizable, Renderable } from "../common/interfaces.js";
 import ComponentStyleAttribute from "./ComponentStyleAttribute.js";
 
 enum Name {
-    FONT = "Font",
-    BACKGROUND = "Background",
-    BORDER = "Border"
+    FONT = "font",
+    BACKGROUND = "background",
+    BORDER = "border"
 };
 
 type Props = {
@@ -50,6 +50,7 @@ export default abstract class ComponentStyle implements Localizable, Renderable 
     getTemplate(): string {
         let template = `<ul class="style-attribute-list" data-name="${this._name}">`;
         for (let attribute of this._attributes) {
+            const attributeId = 
             template += `
                 <li class="style-attribute-item" data-name="${this._name.toLowerCase()}-${attribute.name}">
                     <label>${attribute.getDisplayName()}</label>

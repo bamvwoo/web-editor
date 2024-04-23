@@ -74,10 +74,30 @@ class Component {
             if (!this.isAvailable()) {
                 throw new Error("Component is not available");
             }
-            // TODO : 스타일 적용
             const element = this.getElement();
             element.innerHTML = yield this.getTemplate();
+            this.applyStyle();
         });
+    }
+    applyStyle() {
+        const element = this.getElement();
+        const styleSelector = this.getStyleSelector();
+        let styleElem = element;
+        if (styleSelector) {
+            styleElem = styleElem.querySelector(styleSelector);
+        }
+        if (styleElem) {
+            for (const styleItem of this._style.items) {
+                const styleAttributes = styleItem.getStyleAttributes();
+                for (const styleAttribute of styleAttributes) {
+                    const attributeValue = styleAttribute.value;
+                    if (attributeValue) {
+                        const styleKey = styleItem.name + "-" + styleAttribute.name;
+                        styleElem.style.setProperty(styleKey, attributeValue);
+                    }
+                }
+            }
+        }
     }
     isSelected() {
         const element = this.getElement();
@@ -93,12 +113,12 @@ class Component {
         return this._templateElem;
     }
     getStyleSelector() {
-        if (!this._style) {
+        if (this._style) {
             return this._style.selector;
         }
     }
     setStyleSelector(selector) {
-        if (!this._style) {
+        if (this._style) {
             this._style.selector = selector;
         }
     }

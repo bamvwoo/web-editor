@@ -1,3 +1,4 @@
+import ComponentStyleAttribute from "./comp-style/ComponentStyleAttribute";
 import ComponentStyle from "./comp-style/ComponentStyle";
 import Component from "../js/comp/Component.js";
 import { openModal } from "./common/utils.js";
@@ -502,10 +503,12 @@ export default class Editor {
                 const styleItem: ComponentStyle = comp.getStyleItem(styleItemName);
 
                 if (styleItem) {
-                    const styleAttrElems: NodeListOf<Element> = styleItemElem.querySelectorAll(".style-attribute-item");
-                    for (let styleAttrElem of styleAttrElems) {
-                        const styleAttrName: string = (styleAttrElem as HTMLElement).dataset.name;
-                        styleItem.setStyleAttribute(styleAttrName, ""); // TODO : 입력된 값을 가져오는 메서드 구현 필요
+                    const styleAttributes: ComponentStyleAttribute[] = styleItem.getStyleAttributes();
+                    for (let styleAttribute of styleAttributes) {
+                        const inputValue = styleAttribute.getInputValue();
+                        if (inputValue) {
+                            styleAttribute.value = inputValue;
+                        }
                     }
                 }
             }

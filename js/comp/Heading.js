@@ -14,7 +14,7 @@ class Heading extends Component {
         super(id, Heading.PROPS);
         this._size = options ? (options.size || 1) : 1;
         this._content = options ? (options.content || Heading.PROPS.displayName.default) : Heading.PROPS.displayName.default;
-        this.setStyleSelector("& > h" + this._size);
+        this.setStyleSelector(`& > h${this._size}`);
     }
     get size() {
         return this._size;

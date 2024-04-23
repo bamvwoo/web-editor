@@ -33,7 +33,7 @@ export default class Heading extends Component {
         this._size = options ? (options.size || 1) : 1;
         this._content = options ? (options.content || Heading.PROPS.displayName.default) : Heading.PROPS.displayName.default;
 
-        this.setStyleSelector("& > h" + this._size);
+        this.setStyleSelector(`& > h${this._size}`);
     }
 
     get size(): number {

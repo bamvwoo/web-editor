@@ -425,10 +425,12 @@ export default class Editor {
                 const styleItemName = styleItemElem.dataset.name;
                 const styleItem = comp.getStyleItem(styleItemName);
                 if (styleItem) {
-                    const styleAttrElems = styleItemElem.querySelectorAll(".style-attribute-item");
-                    for (let styleAttrElem of styleAttrElems) {
-                        const styleAttrName = styleAttrElem.dataset.name;
-                        styleItem.setStyleAttribute(styleAttrName, ""); // TODO : 입력된 값을 가져오는 메서드 구현 필요
+                    const styleAttributes = styleItem.getStyleAttributes();
+                    for (let styleAttribute of styleAttributes) {
+                        const inputValue = styleAttribute.getInputValue();
+                        if (inputValue) {
+                            styleAttribute.value = inputValue;
+                        }
                     }
                 }
             }
